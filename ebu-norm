@@ -9,7 +9,7 @@ else
 TARGET=-23
 fi
 echo "The target is $TARGET LUFS integrated..."
-path=$1
+path=$(realpath $1)
 dirname="${path%/*}"
 mkdir "$dirname/Normalized"
 
