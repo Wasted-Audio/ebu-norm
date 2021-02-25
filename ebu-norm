@@ -21,4 +21,7 @@ do
 	INT_VALUE=$(ebur128 --lufs "$file" | awk '/Int/ {print $3}')
 	GAIN=$(echo $TARGET "-" $INT_VALUE | bc )
 	sox "$file" "$dirname/Normalized/$FNAME-normalized.$EXT" gain $GAIN
+	echo	
+	echo $file
+	echo "$GAIN dB applied..."
 done
