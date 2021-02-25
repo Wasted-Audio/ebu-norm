@@ -1,0 +1,24 @@
+#!/bin/bash
+# Script to batch normalize files to EBU R 128 (-23 LUFS Integrated)
+# Copyright © 2021 Elizabeth Harmon
+
+if [ "$1" = "-t" ]; then
+TARGET=$2
+shift ; shift
+else
+TARGET=-23
+fi
+echo "The target is $TARGET LUFS integrated..."
+path=$1
+dirname="${path%/*}"
+mkdir "$dirname/Normalized"
+
+for file in "$@";
+do
+	FILENAME="$(basename "$file")"
+	FNAME="${FILENAME%.*}"
+	EXT="${file##*.}"
+	INT_VALUE=$(ebur128 --lufs "$file" | awk '/Int/ {print $3}')
+	GAIN=$(echo $TARGET "-" $INT_VALUE | bc )
+	sox "$file" "$dirname/Normalized/$FNAME-normalized.$EXT" gain $GAIN
+done
