@@ -1,0 +1,38 @@
+#!/bin/bash
+# Script to batch normalize files to desired true peak value
+# Copyright © 2021 Elizabeth Harmon
+
+if [ "$1" = "-t" ] && [ -f "$2" ] 
+then
+  TARGET=-1
+  shift
+  echo "No value given after -t flag so using default -1 dBTP"
+  sleep 3
+elif [ "$1" = "-t" ] 
+then
+  TARGET=$2
+  echo "The target is $TARGET dBTP..."
+  shift ; shift
+  sleep 3
+else
+  TARGET=-1
+  echo "The target is -1 dBTP..."
+  sleep 3
+fi
+
+path=$(realpath $1)
+dirname="${path%/*}"
+mkdir "$dirname/dBTP-norm"
+
+for file in "$@";
+do
+	FILENAME="$(basename "$file")"
+	FNAME="${FILENAME%.*}"
+	EXT="${file##*.}"
+	PEAK_VALUE=$(ebur128 --lufs --full "$file" | awk '/Peak/ {print $3}')
+	GAIN=$(echo $TARGET "-" $PEAK_VALUE | bc )
+	sox "$file" "$dirname/dBTP-norm/$FNAME-dBTP-norm.$EXT" gain $GAIN
+	echo	
+	echo $file
+	echo "$GAIN dB applied..."
+done
