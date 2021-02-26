@@ -14,6 +14,8 @@ ebu-norm [-t target_value] infiles
 ```
 where ```-t``` allows for an integrated target other than -23 LUFS.
 
+As of v.0.3, if true peaks rise above -1 dBTP, a SoX limiter chain is engaged.
+
 ```shell
 dbtp-norm [-t target_value] infiles
 ```
