@@ -5,7 +5,7 @@ Prerequisites: ebur128, sox
 
 ### Process
 Files are analyzed by ebur128 with the required gain passed to SoX. 
-+/− gain is calculated by the target level minus the analyzed integrated value.
++/− gain is calculated by the target level minus the analyzed integrated or peak value.
 Files are written to a sub-folder with suffix added to filename.
 
 ### Usage: 
