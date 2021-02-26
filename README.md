@@ -32,5 +32,5 @@ will create a Normalized sub-folder and create -20 LUFS integrated FLAC files.
 
 - [ ] Add SoX limiter function for positive gain instances
 - [x] Add verbose output showing filename and applied gain
-- [ ] Add error message if no target value added with `-t`
+- [x] Add error message if no target value added with `-t`
 - [ ] Add dBTP target option
