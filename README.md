@@ -40,7 +40,7 @@ will create a dbtp-norm sub-folder and -1 dBTP WAV files (default).
 ```shell
 dbtp-norm -t -2 AudioFolder/*
 ```
-will create a dbtp-norm sub-folder and -2 dBTP all media files. 
+will create a dbtp-norm sub-folder and -2 dBTP for all media files present. 
 
 ### To-do List
 
