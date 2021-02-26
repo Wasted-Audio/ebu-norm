@@ -24,15 +24,48 @@ path=$(realpath "$1")
 dirname="${path%/*}"
 mkdir "$dirname/ebu-norm"
 
+TEMPDIR=$(mktemp -d)	
+touch "$TEMPDIR"/audioin.$EXT
+touch "$TEMPDIR"/audioout.$EXT
+
 for file in "$@";
 do
 	FILENAME="$(basename "$file")"
 	FNAME="${FILENAME%.*}"
 	EXT="${file##*.}"
-	INT_VALUE=$(ebur128 --lufs "$file" | awk '/Int/ {print $3}')
+	ebur128 --full --lufs "$file" > "$TEMPDIR/la.txt"
+	INT_VALUE=$(awk '/loud/ {print $3}' "$TEMPDIR/la.txt") 
+	PEAK_VALUE=$(awk '/Peak/ {print $3}' "$TEMPDIR/la.txt") 
 	GAIN=$(echo $TARGET "-" $INT_VALUE | bc )
+  if [ $(echo $PEAK_VALUE "+" $GAIN "> -1" | bc) -eq 1 ]
+  then 
+	LIMITER_LEVEL=$(echo $INT_VALUE "-" $TARGET | bc )
+	L3=$(echo $LIMITER_LEVEL "+ -3" | bc ) 
+	L2=$(echo $LIMITER_LEVEL "+ -2" | bc ) 
+	L1=$(echo $LIMITER_LEVEL "+ -1" | bc ) 
+	L0=$(echo $LIMITER_LEVEL "+ 0" | bc ) 
+	COMP_1=$(echo "compand 0.005,0.3 1:"$L3","$L3",0,"$L2)
+	COMP_2=$(echo "compand 0.002,0.15 1:"$L2","$L2",0,"$L1)
+	COMP_3=$(echo "compand 0.001,0.075 1:"$L1","$L1",0,"$L0)
+	LIMITER=$(echo "compand 0,0 1:"$L3","$L3",0,"$L0) 
+
+	sox "$file" "$TEMPDIR/audioin.$EXT" $COMP_1
+	sox "$TEMPDIR/audioin.$EXT" "$TEMPDIR/audioout.$EXT" $COMP_2
+	sox "$TEMPDIR/audioout.$EXT" "$TEMPDIR/audioin.$EXT" $COMP_3
+	sox "$TEMPDIR/audioin.$EXT" "$TEMPDIR/audioout.$EXT" $LIMITER
+	sox "$TEMPDIR/audioout.$EXT" "$dirname/ebu-norm/$FNAME-ebu-norm.$EXT" gain $GAIN
+	echo	
+	echo $file
+	echo "$GAIN dB applied with limiting..."
+  else
 	sox "$file" "$dirname/ebu-norm/$FNAME-ebu-norm.$EXT" gain $GAIN
 	echo	
 	echo $file
 	echo "$GAIN dB applied..."
+  fi
 done
+
+if [ -n "$TEMPDIR" ] 
+then
+  rm -r "$TEMPDIR"
+fi
