@@ -46,7 +46,7 @@ will create a dbtp-norm sub-folder and -2 dBTP for all media files present.
 
 ### To-do List
 
-- [ ] Add SoX limiter function for positive gain instances
+- [x] Add SoX limiter function for positive gain instances
 - [x] Add verbose output showing filename and applied gain
 - [x] Add error message if no target value added with `-t`
 - [x] Add dBTP target option
