@@ -22,7 +22,7 @@ fi
 
 path=$(realpath $1)
 dirname="${path%/*}"
-mkdir "$dirname/dbtp-norm"
+mkdir "$dirname/tp-norm"
 
 for file in "$@";
 do
@@ -31,7 +31,7 @@ do
 	EXT="${file##*.}"
 	PEAK_VALUE=$(ebur128 --lufs --full "$file" | awk '/Peak/ {print $3}')
 	GAIN=$(echo $TARGET "-" $PEAK_VALUE | bc )
-	sox "$file" "$dirname/dbtp-norm/$FNAME-dbtp-norm.$EXT" gain $GAIN
+	sox "$file" "$dirname/tp-norm/$FNAME-tp-norm.$EXT" gain $GAIN
 	echo	
 	echo $file
 	echo "$GAIN dB applied..."
