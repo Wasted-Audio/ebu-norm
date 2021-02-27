@@ -43,8 +43,3 @@ will create a tp-norm sub-folder and -1 dBTP WAV files (default).
 tp-norm -t -2 AudioFolder/*
 ```
 will create a tp-norm sub-folder and -2 dBTP for all media files present. 
-
-### To-do List
-
-- [ ] Add second pass after limiting to hit integrated target precisely
-
