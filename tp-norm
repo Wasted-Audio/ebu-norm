@@ -2,6 +2,8 @@
 # Script to batch normalize files to desired true peak value
 # Copyright © 2021 Elizabeth Harmon
 
+
+# Select true peak target based on -t flag or -1 dBTP default
 if [ "$1" = "-t" ] && [ -f "$2" ] 
 then
   TARGET=-1
@@ -20,17 +22,24 @@ else
   sleep 3
 fi
 
+
+# Create subfolder for normalized files
 path=$(realpath "$1")
 dirname="${path%/*}"
 mkdir "$dirname/tp-norm"
 
 for file in "$@";
 do
+	# Separate name of file 
 	FILENAME="$(basename "$file")"
 	FNAME="${FILENAME%.*}"
 	EXT="${file##*.}"
+
+	# Peak and gain analysis
 	PEAK_VALUE=$(ebur128 --lufs --full "$file" | awk '/Peak/ {print $3}')
 	GAIN=$(echo $TARGET "-" $PEAK_VALUE | bc )
+
+	# Apply gain
 	sox "$file" "$dirname/tp-norm/$FNAME-tp-norm.$EXT" gain $GAIN
 	echo	
 	echo $file
