@@ -20,7 +20,7 @@ else
   sleep 3
 fi
 
-path=$(realpath $1)
+path=$(realpath "$1")
 dirname="${path%/*}"
 mkdir "$dirname/tp-norm"
 
