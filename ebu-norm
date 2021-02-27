@@ -2,6 +2,8 @@
 # Script to batch normalize files to EBU R 128 (-23 LUFS Integrated)
 # Copyright © 2021 Elizabeth Harmon
 
+
+# Select LUFS target based on -t flag or -23 LUFS default
 if [ "$1" = "-t" ] && [ -f "$2" ] 
 then
   TARGET=-23
@@ -20,27 +22,34 @@ else
   sleep 3
 fi
 
+# Create subfolder for normalized files
 path=$(realpath "$1")
 dirname="${path%/*}"
 mkdir "$dirname/ebu-norm"
 
+# Create temp dir and audio files
 TEMPDIR=$(mktemp -d)	
 touch "$TEMPDIR"/audioin.$EXT
 touch "$TEMPDIR"/audioout.$EXT
 
 for file in "$@";
 do
+	# Separate name of file 
 	FILENAME="$(basename "$file")"
 	FNAME="${FILENAME%.*}"
 	EXT="${file##*.}"
+
+	# Loudness, peak and gain analysis
 	ebur128 --full --lufs "$file" > "$TEMPDIR/la.txt"
 	INT_VALUE=$(awk '/loud/ {print $3}' "$TEMPDIR/la.txt") 
 	PEAK_VALUE=$(awk '/Peak/ {print $3}' "$TEMPDIR/la.txt") 
 	GAIN=$(echo $TARGET "-" $INT_VALUE | bc )
+
   if [ $(echo $PEAK_VALUE "+" $GAIN "> -1" | bc) -eq 1 ]
   then 
-# The following SoX compand values are based on numbers in mhartzel's FreeLCS project 
-# https://github.com/mhartzel/freelcs/blob/master/LoudnessCorrection.py
+
+	# The following SoX compand values are based on numbers in mhartzel's FreeLCS project 
+	# https://github.com/mhartzel/freelcs/blob/master/LoudnessCorrection.py
 	LIMITER_LEVEL=$(echo $INT_VALUE "-" $TARGET "+ -2"| bc )
 	L3=$(echo $LIMITER_LEVEL "+ -3" | bc ) 
 	L2=$(echo $LIMITER_LEVEL "+ -2" | bc ) 
@@ -51,15 +60,24 @@ do
 	COMP_3=$(echo "compand 0.001,0.075 1:"$L1","$L1",0,"$L0)
 	LIMITER=$(echo "compand 0,0 3:"$L3","$L3",0,"$L0) 
 
+	# SoX limiter chain
 	sox "$file" "$TEMPDIR/audioin.$EXT" $COMP_1
 	sox "$TEMPDIR/audioin.$EXT" "$TEMPDIR/audioout.$EXT" $COMP_2
 	sox "$TEMPDIR/audioout.$EXT" "$TEMPDIR/audioin.$EXT" $COMP_3
 	sox "$TEMPDIR/audioin.$EXT" "$TEMPDIR/audioout.$EXT" $LIMITER
+
+	# Second analysis pass
+	ebur128 --full --lufs "$TEMPDIR/audioout.$EXT" > "$TEMPDIR/la.txt"
+	INT_VALUE=$(awk '/loud/ {print $3}' "$TEMPDIR/la.txt") 
+	GAIN=$(echo $TARGET "-" $INT_VALUE | bc )
+
+	# Apply gain after limiting
 	sox "$TEMPDIR/audioout.$EXT" "$dirname/ebu-norm/$FNAME-ebu-norm.$EXT" gain $GAIN
 	echo	
 	echo $file
 	echo "$GAIN dB applied with limiting..."
   else
+	# Apply basic gain without limiting
 	sox "$file" "$dirname/ebu-norm/$FNAME-ebu-norm.$EXT" gain $GAIN
 	echo	
 	echo $file
@@ -67,7 +85,4 @@ do
   fi
 done
 
-if [ -n "$TEMPDIR" ] 
-then
-  rm -r "$TEMPDIR"
-fi
+rm -r "$TEMPDIR"
