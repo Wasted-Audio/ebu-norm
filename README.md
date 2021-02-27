@@ -1,4 +1,4 @@
-# ebu-norm & dbtp-norm
+# ebu-norm & tp-norm
 Scripts to batch normalize files to integrated or true peak targets
 
 Prerequisites: ebur128, sox
@@ -17,7 +17,7 @@ where ```-t``` allows for an integrated target other than -23 LUFS.
 As of v.0.3, if true peaks rise above -1 dBTP, a SoX limiter chain is engaged.
 
 ```shell
-dbtp-norm [-t target_value] infiles
+tp-norm [-t target_value] infiles
 ```
 where ```-t``` allows for an true peak target other than -1 dBTP.
 
@@ -34,15 +34,15 @@ ebu-norm -t -20 AudioFolder/*.flac
 will create an ebu-norm sub-folder and create -20 LUFS integrated FLAC files. 
 
 ```shell
-dbtp-norm AudioFolder/*.wav
+tp-norm AudioFolder/*.wav
 ```
-will create a dbtp-norm sub-folder and -1 dBTP WAV files (default). 
+will create a tp-norm sub-folder and -1 dBTP WAV files (default). 
 
 
 ```shell
-dbtp-norm -t -2 AudioFolder/*
+tp-norm -t -2 AudioFolder/*
 ```
-will create a dbtp-norm sub-folder and -2 dBTP for all media files present. 
+will create a tp-norm sub-folder and -2 dBTP for all media files present. 
 
 ### To-do List
 
