@@ -41,6 +41,6 @@ will create a tp-norm sub-folder and -1 dBTP WAV files (default).
 
 
 ```shell
-tp-norm -t -2 AudioFolder/*
+tp-norm -t -2 AudioFolder/*.flac
 ```
-will create a tp-norm sub-folder and -2 dBTP for all media files present. 
+will create a tp-norm sub-folder and -2 dBTP FLAC files. 
