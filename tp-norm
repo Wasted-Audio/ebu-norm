@@ -8,8 +8,12 @@ if [ "$1" = "-t" ] && [ -f "$2" ]
 then
   TARGET=-1
   shift
-  echo "No value given after -t flag so using default -1 dBTP"
-  sleep 3
+  echo "Please enter a true peak value (0 or lower) if using the -t flag"
+  exit
+elif [ "$1" = "-t" ] && [ "$2" -gt 0 ]
+then
+  echo "Please enter a true peak value 0 or lower"
+  exit
 elif [ "$1" = "-t" ] 
 then
   TARGET=$2

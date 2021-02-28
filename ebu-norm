@@ -8,10 +8,14 @@ if [ "$1" = "-t" ] && [ -f "$2" ]
 then
   TARGET=-23
   shift
-  echo "No value given after -t flag so using default -23 LUFS"
-  sleep 3
+  echo "Please enter a value (-12 or lower) if using the -t flag"
+  exit
+elif [ "$1" = "-t" ] && [ "$2" -ge -12 ]
+  then
+  echo "Please enter an integrated value -12 or lower"
+  exit	
 elif [ "$1" = "-t" ] 
-then
+  then
   TARGET=$2
   echo "The target is $TARGET LUFS integrated..."
   shift ; shift
