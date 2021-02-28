@@ -3,6 +3,8 @@ Scripts to batch normalize files to integrated or true peak targets
 
 Prerequisites: ebur128, sox
 
+N.B. File format input is currently limited to that readable by `ebur128` which appears to be wav, flac and ogg.
+
 ### Process
 Files are analyzed by ebur128 with the required gain passed to SoX. 
 +/− gain is calculated by the target level minus the analyzed integrated or peak value.
