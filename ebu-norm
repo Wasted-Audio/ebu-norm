@@ -81,13 +81,13 @@ do
 	sox "$TEMPDIR/audioout.$EXT" "$dirname/ebu-norm/$FNAME-ebu-norm.$EXT" gain $GAIN
 	echo	
 	echo $file
-	echo "$GAIN dB applied with $PEAKR dB of peak limiting..."
+	echo "$GAIN dB of gain applied with $PEAKR dB of peak limiting..."
   else
 	# Apply basic gain without limiting
 	sox "$file" "$dirname/ebu-norm/$FNAME-ebu-norm.$EXT" gain $GAIN
 	echo	
 	echo $file
-	echo "$GAIN dB applied..."
+	echo "$GAIN dB of gain applied..."
   fi
 done
 

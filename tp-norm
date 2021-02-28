@@ -47,5 +47,5 @@ do
 	sox "$file" "$dirname/tp-norm/$FNAME-tp-norm.$EXT" gain $GAIN
 	echo	
 	echo $file
-	echo "$GAIN dB applied..."
+	echo "$GAIN dB of gain applied..."
 done
