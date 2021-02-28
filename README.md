@@ -46,3 +46,23 @@ will create a tp-norm sub-folder and -1 dBTP WAV files (default).
 tp-norm -t -2 AudioFolder/*.flac
 ```
 will create a tp-norm sub-folder and -2 dBTP FLAC files. 
+
+# ebu-scan
+Script to batch analyze audio files and print true peak and various loudness values to screen and text file.
+
+Prerequisites: ebur128
+
+#### Example
+
+```shell
+ebu-scan AudioFolder/*.wav
+```
+Sample terminal output (and also written to analysis.txt):
+```shell
+File                  True Peak  Integrated  Short-term  Momentary
+                      (dBTP)     (LUFS)      (LUFS)      (LUFS)
+FileA.wav             -0.6       -16.8       -11.2       -9.5
+FileB.wav             -1.0       -16.6       -10.9       -9.4
+LongerfilenameC.wav   -0.9       -17.3       -11.7       -10.3
+FileD.wav             -1.0       -17.5       -11.8       -10.5
+```
