@@ -1,5 +1,5 @@
 #!/bin/bash
-# Script to scan audio files and return integrated values
+# Script to scan audio files and return true peak and various loudness values
 # Copyright © 2021 Elizabeth Harmon
 
 # Find real directory name
