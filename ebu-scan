@@ -1,0 +1,31 @@
+#!/bin/bash
+# Script to scan audio files and return integrated values
+# Copyright © 2021 Elizabeth Harmon
+
+# Find real directory name
+path=$(realpath "$1")
+dirname="${path%/*}"
+
+# Create temp dir and audio files
+TEMPDIR=$(mktemp -d)
+echo "Analyzing..."
+echo "File|True Peak|Integrated|Short-term|Momentary" > "$TEMPDIR/tempanalysis"
+echo "|(dBTP)|(LUFS)|(LUFS)|(LUFS)" >> "$TEMPDIR/tempanalysis"
+
+for file in "$@";
+do
+	# Separate name of file 
+	FILENAME="$(basename "$file")"
+
+	# Loudness, peak and gain analysis
+	ebur128 --full --lufs "$file" > "$TEMPDIR/la.txt"
+	INT=$(awk '/loud/ {print $3}' "$TEMPDIR/la.txt") 
+	PEAK=$(awk '/Peak/ {print $3}' "$TEMPDIR/la.txt") 
+	SHORT=$(awk '/Short/ {print $4}' "$TEMPDIR/la.txt")
+	MOM=$(awk '/Mom/ {print $3}' "$TEMPDIR/la.txt")
+	echo "$FILENAME|$PEAK|$INT|$SHORT|$MOM" >> "$TEMPDIR/tempanalysis"  
+
+done
+	#Format analysis data and print	
+	cat $TEMPDIR/tempanalysis | column -t -s "|" "$TEMPDIR/tempanalysis" | tee "$dirname/analysis.txt"
+rm -r "$TEMPDIR"
