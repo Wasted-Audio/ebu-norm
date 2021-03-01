@@ -26,9 +26,9 @@ NUMARG=$(echo $#)
 NUM=1
 
 # Delete existing analysis.txt if it exists
-if [ -f "$dirname/analysis.txt" ]
+if [ -f "$dirname/loudness_analysis.txt" ]
 then
-  rm "$dirname/analysis.txt"
+  rm "$dirname/loudness_analysis.txt"
 fi
 
 for file in "$@";
@@ -48,7 +48,7 @@ do
 
 done
 	#Format analysis data and print	
-	cat $TEMPDIR/tempanalysis | column -L -t -s "|" "$TEMPDIR/tempanalysis" | tee "$dirname/analysis.txt"
+	cat $TEMPDIR/tempanalysis | column -L -t -s "|" "$TEMPDIR/tempanalysis" | tee "$dirname/loudness_analysis.txt"
 	echo
 	printf "\n" >> "$dirname/analysis.txt"	
 	date >> "$dirname/analysis.txt"
