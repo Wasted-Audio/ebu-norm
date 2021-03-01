@@ -39,7 +39,7 @@ touch "$TEMPDIR"/audioout.$EXT
 for file in "$@";
 do
 	# Separate name of file 
-	FILENAME="$(basename "$file")"
+	FILENAME=${file##*/}
 	FNAME="${FILENAME%.*}"
 	EXT="${file##*.}"
 
