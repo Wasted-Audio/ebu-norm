@@ -29,6 +29,7 @@ NUM=1
 if [ -f "$dirname/loudness_analysis.txt" ]
 then
   rm "$dirname/loudness_analysis.txt"
+  ((NUMARG=NUMARG-1))
 fi
 
 for file in "$@"; do
