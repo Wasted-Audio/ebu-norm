@@ -30,7 +30,7 @@ fi
 # Create subfolder for normalized files
 path=$(realpath "$1")
 dirname="${path%/*}"
-mkdir "$dirname/tp-norm"
+mkdir -p "$dirname/tp-norm"
 
 for file in "$@";
 do
