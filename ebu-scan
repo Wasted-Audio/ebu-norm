@@ -9,6 +9,7 @@ dirname="${path%/*}"
 # Create temp dir and audio files
 TEMPDIR=$(mktemp -d)
 echo "Analyzing..."
+echo
 echo "File|True Peak|Integrated|Short-term|Momentary" > "$TEMPDIR/tempanalysis"
 echo "|(dBTP)|(LUFS)|(LUFS)|(LUFS)" >> "$TEMPDIR/tempanalysis"
 

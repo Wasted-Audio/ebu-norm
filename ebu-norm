@@ -92,3 +92,5 @@ do
 done
 
 rm -r "$TEMPDIR"
+echo
+. ${BASH_SOURCE%/*}/ebu-scan "$dirname"/ebu-norm/*

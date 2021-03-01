@@ -49,3 +49,5 @@ do
 	echo $file
 	echo "$GAIN dB of gain applied..."
 done
+echo
+. ${BASH_SOURCE%/*}/ebu-scan "$dirname"/tp-norm/*
