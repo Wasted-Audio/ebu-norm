@@ -22,15 +22,22 @@ echo "File|True Peak|Integrated|Short-term|Momentary" > "$TEMPDIR/tempanalysis"
 echo "|(dBTP)|(LUFS)|(LUFS)|(LUFS)" >> "$TEMPDIR/tempanalysis"
 
 # Count number of arguments
-NUMARG=$(echo $#)
+NUMARG=0
 NUM=1
 
 # Delete existing analysis.txt if it exists
 if [ -f "$dirname/loudness_analysis.txt" ]
 then
   rm "$dirname/loudness_analysis.txt"
-  ((NUMARG=NUMARG-1))
 fi
+
+#Enumerate audio files
+for file in "$@"; do
+if [ "${file##*.}" == wav ] || [ "${file##*.}" == aif ] || [ "${file##*.}" == aiff ] || [ "${file##*.}" == flac ] || [ "${file##*.}" == ogg ] || [ "${file##*.}" == opus ];
+then
+((NUMARG=NUMARG+1))
+fi
+done
 
 for file in "$@"; do
 if [ "${file##*.}" == wav ] || [ "${file##*.}" == aif ] || [ "${file##*.}" == aiff ] || [ "${file##*.}" == flac ] || [ "${file##*.}" == ogg ] || [ "${file##*.}" == opus ];
