@@ -42,7 +42,7 @@ dirname="${path%/*}"
 mkdir -p "$dirname/tp-norm"
 
 for file in "$@"; do
-if [ "${file##*.}" == wav ] || [ "${file##*.}" == aif ] || [ "${file##*.}" == aiff ] || [ "${file##*.}" == flac ] || [ "${file##*.}" == ogg ] || [ "${file##*.}" == opus ];
+if [ "${file##*.}" == wav ] || [ "${file##*.}" == aif ] || [ "${file##*.}" == aiff ] || [ "${file##*.}" == flac ] || [ "${file##*.}" == ogg ];
 then
 	# Separate name of file 
 	FILENAME="$(basename "$file")"
