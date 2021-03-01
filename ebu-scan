@@ -48,5 +48,8 @@ do
 
 done
 	#Format analysis data and print	
-	cat $TEMPDIR/tempanalysis | column -t -s "|" "$TEMPDIR/tempanalysis" | tee "$dirname/analysis.txt"
+	cat $TEMPDIR/tempanalysis | column -L -t -s "|" "$TEMPDIR/tempanalysis" | tee "$dirname/analysis.txt"
+	echo
+	printf "\n" >> "$dirname/analysis.txt"	
+	date >> "$dirname/analysis.txt"
 rm -r "$TEMPDIR"
