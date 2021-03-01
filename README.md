@@ -3,7 +3,7 @@ Scripts to batch normalize files to integrated or true peak targets
 
 Prerequisites: `ebur128`, `sox`
 
-N.B. File format input is currently limited to formats readable by both `ebur128` and `SoX` and which appear to be wav, aiff, flac and ogg (with opus readable by `ebu-scan` as it does not rely on any `SoX` processing).
+N.B. File format input is currently limited to formats readable by both `ebur128` and `SoX` and which appear to be wav, aiff (or aif), flac and ogg (with opus readable by `ebu-scan` as it does not rely on any `SoX` processing). For v1.4 onwards, all scripts will only read files with accepted audio extensions.
 
 ### Process
 Files are analyzed by `ebur128` with the required gain passed to `SoX`. 
