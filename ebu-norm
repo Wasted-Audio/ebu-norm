@@ -45,15 +45,16 @@ mkdir -p "$dirname/ebu-norm"
 TEMPDIR=$(mktemp -d)	
 touch "$TEMPDIR"/audioin.$EXT
 touch "$TEMPDIR"/audioout.$EXT
+touch "$TEMPDIR/skipped.txt"
+SKIPPED=0
 
 for file in "$@"; do
+# Separate name of file 
+FILENAME=${file##*/}
+FNAME="${FILENAME%.*}"
+EXT="${file##*.}"
 if [ "${file##*.}" == wav ] || [ "${file##*.}" == aif ] || [ "${file##*.}" == aiff ] || [ "${file##*.}" == flac ] || [ "${file##*.}" == ogg ];
 then
-	# Separate name of file 
-	FILENAME=${file##*/}
-	FNAME="${FILENAME%.*}"
-	EXT="${file##*.}"
-
 	# Loudness, peak and gain analysis
 	ebur128 --full --lufs "$file" > "$TEMPDIR/la.txt"
 	INT_VALUE=$(awk '/loud/ {print $3}' "$TEMPDIR/la.txt") 
@@ -100,9 +101,18 @@ then
 	echo $file
 	echo "$GAIN dB of gain applied..."
   fi
+elif 	[ -f "$file" ]
+then
+	((SKIPPED=SKIPPED+1))
+	echo "$file" >> "$TEMPDIR/skipped.txt"
+else
+:
 fi
 done
 
+echo
+echo "Skipped items: $SKIPPED"
+cat "$TEMPDIR/skipped.txt"
 rm -r "$TEMPDIR"
 echo
 . ${BASH_SOURCE%/*}/ebu-scan "$dirname"/ebu-norm/*

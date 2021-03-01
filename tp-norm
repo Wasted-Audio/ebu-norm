@@ -35,20 +35,23 @@ else
   sleep 3
 fi
 
+TEMPDIR=$(mktemp -d)
+touch "$TEMPDIR/skipped.txt"
 
 # Create subfolder for normalized files
 path=$(realpath "$1")
 dirname="${path%/*}"
 mkdir -p "$dirname/tp-norm"
+SKIPPED=0
 
 for file in "$@"; do
+# Separate name of file 
+FILENAME=${file##*/}
+FNAME="${FILENAME%.*}"
+EXT="${file##*.}"
+
 if [ "${file##*.}" == wav ] || [ "${file##*.}" == aif ] || [ "${file##*.}" == aiff ] || [ "${file##*.}" == flac ] || [ "${file##*.}" == ogg ];
 then
-	# Separate name of file 
-	FILENAME="$(basename "$file")"
-	FNAME="${FILENAME%.*}"
-	EXT="${file##*.}"
-
 	# Peak and gain analysis
 	PEAK_VALUE=$(ebur128 --lufs --full "$file" | awk '/Peak/ {print $3}')
 	GAIN=$(echo $TARGET "-" $PEAK_VALUE | bc )
@@ -58,7 +61,17 @@ then
 	echo	
 	echo $file
 	echo "$GAIN dB of gain applied..."
+elif [ -f "$file" ]
+then
+	((SKIPPED=SKIPPED+1))
+	echo "$file" >> "$TEMPDIR/skipped.txt"
+else
+:
 fi
 done
+echo
+echo "Skipped items: $SKIPPED"
+cat "$TEMPDIR/skipped.txt"
+rm -r "$TEMPDIR"
 echo
 . ${BASH_SOURCE%/*}/ebu-scan "$dirname"/tp-norm/*
