@@ -25,6 +25,12 @@ echo "|(dBTP)|(LUFS)|(LUFS)|(LUFS)" >> "$TEMPDIR/tempanalysis"
 NUMARG=$(echo $#)
 NUM=1
 
+# Delete existing analysis.txt if it exists
+if [ -f "$dirname/analysis.txt" ]
+then
+  rm "$dirname/analysis.txt"
+fi
+
 for file in "$@";
 do
 	# Separate name of file 
