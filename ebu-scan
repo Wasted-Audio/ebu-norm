@@ -12,6 +12,10 @@ echo "Analyzing..."
 echo "File|True Peak|Integrated|Short-term|Momentary" > "$TEMPDIR/tempanalysis"
 echo "|(dBTP)|(LUFS)|(LUFS)|(LUFS)" >> "$TEMPDIR/tempanalysis"
 
+# Count number of arguments
+NUMARG=$(echo $#)
+NUM=1
+
 for file in "$@";
 do
 	# Separate name of file 
@@ -23,7 +27,9 @@ do
 	PEAK=$(awk '/Peak/ {print $3}' "$TEMPDIR/la.txt") 
 	SHORT=$(awk '/Short/ {print $4}' "$TEMPDIR/la.txt")
 	MOM=$(awk '/Mom/ {print $3}' "$TEMPDIR/la.txt")
-	echo "$FILENAME|$PEAK|$INT|$SHORT|$MOM" >> "$TEMPDIR/tempanalysis"  
+	echo "$FILENAME|$PEAK|$INT|$SHORT|$MOM" >> "$TEMPDIR/tempanalysis"
+	echo -ne $NUM'/'$NUMARG'\r'  
+	((NUM=NUM+1))
 
 done
 	#Format analysis data and print	
