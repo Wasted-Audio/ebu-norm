@@ -1,10 +1,19 @@
 #!/bin/bash
-# Script to batch normalize files to desired true peak value
+# Script to batch normalize files to -1 dBTP or desired true peak value
 # Copyright © 2021 Elizabeth Harmon
 
+# Usage: tp-norm <option> <input files>.                          
+# Option: 
+#  -t   Specify true peak target, e.g. -t -2 
 
 # Select true peak target based on -t flag or -1 dBTP default
-if [ "$1" = "-t" ] && [ -f "$2" ] 
+if [ $# -eq 0 ]
+then
+  echo "Usage: tp-norm <option> <input files>"
+  echo "	Option:"
+  echo "	 -t   Specify true peak target, e.g. -t -2"
+ exit
+elif [ "$1" = "-t" ] && [ -f "$2" ] 
 then
   TARGET=-1
   shift

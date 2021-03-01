@@ -2,6 +2,14 @@
 # Script to scan audio files and return true peak and various loudness values
 # Copyright © 2021 Elizabeth Harmon
 
+# Usage: ebu-scan <input files>.                          
+
+if [ $# -eq 0 ]
+then
+  echo "Usage: ebu-scan <input files>"
+  exit
+fi
+
 # Find real directory name
 path=$(realpath "$1")
 dirname="${path%/*}"

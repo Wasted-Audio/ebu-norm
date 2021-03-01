@@ -1,10 +1,20 @@
 #!/bin/bash
-# Script to batch normalize files to EBU R 128 (-23 LUFS Integrated)
+# Script to batch normalize files to EBU R 128 (-23 LUFS Integrated) or another specified target.
 # Copyright © 2021 Elizabeth Harmon
+      
+# Usage: ebu-norm <option> <input files>.                          
+# Option: 
+#  -t   Specify integrated loudness target, e.g. -t -20         
 
 
 # Select LUFS target based on -t flag or -23 LUFS default
-if [ "$1" = "-t" ] && [ -f "$2" ] 
+if [ $# -eq 0 ]
+then
+  echo "Usage: ebu-norm <option> <input files>"
+  echo "	Option:" 
+  echo " 	 -t   Specify integrated loudness target, e.g. -t -20" 
+  exit
+elif [ "$1" = "-t" ] && [ -f "$2" ] 
 then
   TARGET=-23
   shift
