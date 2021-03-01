@@ -41,8 +41,9 @@ path=$(realpath "$1")
 dirname="${path%/*}"
 mkdir -p "$dirname/tp-norm"
 
-for file in "$@";
-do
+for file in "$@"; do
+if [ "${file##*.}" == wav ] || [ "${file##*.}" == aif ] || [ "${file##*.}" == aiff ] || [ "${file##*.}" == flac ] || [ "${file##*.}" == ogg ] || [ "${file##*.}" == opus ];
+then
 	# Separate name of file 
 	FILENAME="$(basename "$file")"
 	FNAME="${FILENAME%.*}"
@@ -57,6 +58,7 @@ do
 	echo	
 	echo $file
 	echo "$GAIN dB of gain applied..."
+fi
 done
 echo
 . ${BASH_SOURCE%/*}/ebu-scan "$dirname"/tp-norm/*

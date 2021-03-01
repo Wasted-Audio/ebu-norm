@@ -31,8 +31,9 @@ then
   rm "$dirname/loudness_analysis.txt"
 fi
 
-for file in "$@";
-do
+for file in "$@"; do
+if [ "${file##*.}" == wav ] || [ "${file##*.}" == aif ] || [ "${file##*.}" == aiff ] || [ "${file##*.}" == flac ] || [ "${file##*.}" == ogg ] || [ "${file##*.}" == opus ];
+then
 	# Separate name of file 
 	FILENAME="$(basename "$file")"
 
@@ -45,11 +46,12 @@ do
 	echo "$FILENAME|$PEAK|$INT|$SHORT|$MOM" >> "$TEMPDIR/tempanalysis"
 	echo -ne $NUM'/'$NUMARG'\r'  
 	((NUM=NUM+1))
-
+fi
 done
+
 	#Format analysis data and print	
 	cat $TEMPDIR/tempanalysis | column -L -t -s "|" "$TEMPDIR/tempanalysis" | tee "$dirname/loudness_analysis.txt"
 	echo
-	printf "\n" >> "$dirname/analysis.txt"	
-	date >> "$dirname/analysis.txt"
+	printf "\n" >> "$dirname/loudness_analysis.txt"	
+	date >> "$dirname/loudness_analysis.txt"
 rm -r "$TEMPDIR"

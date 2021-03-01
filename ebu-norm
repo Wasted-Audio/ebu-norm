@@ -46,8 +46,9 @@ TEMPDIR=$(mktemp -d)
 touch "$TEMPDIR"/audioin.$EXT
 touch "$TEMPDIR"/audioout.$EXT
 
-for file in "$@";
-do
+for file in "$@"; do
+if [ "${file##*.}" == wav ] || [ "${file##*.}" == aif ] || [ "${file##*.}" == aiff ] || [ "${file##*.}" == flac ] || [ "${file##*.}" == ogg ] || [ "${file##*.}" == opus ];
+then
 	# Separate name of file 
 	FILENAME=${file##*/}
 	FNAME="${FILENAME%.*}"
@@ -99,6 +100,7 @@ do
 	echo $file
 	echo "$GAIN dB of gain applied..."
   fi
+fi
 done
 
 rm -r "$TEMPDIR"
