@@ -101,6 +101,59 @@ then
 	echo $file
 	echo "$GAIN dB of gain applied..."
   fi
+
+elif [ "${file##*.}" == mp3 ] || [ "${file##*.}" == opus ] || [ "${file##*.}" == wv ]
+then
+	# Convert to temp wav file	
+	sox "$file" "$TEMPDIR/$FNAME-$EXT.wav"
+
+	# Loudness, peak and gain analysis
+	ebur128 --full --lufs "$TEMPDIR/$FNAME-$EXT.wav" > "$TEMPDIR/la.txt"
+	INT_VALUE=$(awk '/loud/ {print $3}' "$TEMPDIR/la.txt") 
+	PEAK_VALUE=$(awk '/Peak/ {print $3}' "$TEMPDIR/la.txt") 
+	GAIN=$(echo $TARGET "-" $INT_VALUE | bc )
+
+  if [ $(echo $PEAK_VALUE "+" $GAIN "> -1" | bc) -eq 1 ]
+  then 
+
+	# The following SoX compand values are based on numbers in mhartzel's FreeLCS project 
+	# https://github.com/mhartzel/freelcs/blob/master/LoudnessCorrection.py
+	LIMITER_LEVEL=$(echo $INT_VALUE "-" $TARGET "+ -1" | bc )
+	L3=$(echo $LIMITER_LEVEL "+ -3" | bc ) 
+	L2=$(echo $LIMITER_LEVEL "+ -2" | bc ) 
+	L1=$(echo $LIMITER_LEVEL "+ -1" | bc ) 
+	L0=$(echo $LIMITER_LEVEL "+ 0" | bc ) 
+	COMP_1=$(echo "compand 0.005,0.3 1:"$L3","$L3",0,"$L2)
+	COMP_2=$(echo "compand 0.002,0.15 1:"$L2","$L2",0,"$L1)
+	COMP_3=$(echo "compand 0.001,0.075 1:"$L1","$L1",0,"$L0)
+	LIMITER=$(echo "compand 0,0 3:"$L3","$L3",0,"$L0) 
+
+	# SoX limiter chain
+	sox "$TEMPDIR/$FNAME-$EXT.wav" "$TEMPDIR/audioin.wav" $COMP_1
+	sox "$TEMPDIR/audioin.wav" "$TEMPDIR/audioout.wav" $COMP_2
+	sox "$TEMPDIR/audioout.wav" "$TEMPDIR/audioin.wav" $COMP_3
+	sox "$TEMPDIR/audioin.wav" "$TEMPDIR/audioout.wav" $LIMITER
+
+	# Second analysis pass
+	ebur128 --full --lufs "$TEMPDIR/audioout.wav" > "$TEMPDIR/la-2ndpass.txt"
+	INT_VALUE=$(awk '/loud/ {print $3}' "$TEMPDIR/la-2ndpass.txt") 
+	PEAK_VALUE2=$(awk '/Peak/ {print $3}' "$TEMPDIR/la-2ndpass.txt")
+	GAIN=$(echo $TARGET "-" $INT_VALUE | bc )
+	PEAKR=$(echo $PEAK_VALUE "-" $PEAK_VALUE2 | bc )
+
+	# Apply gain after limiting
+	sox "$TEMPDIR/audioout.wav" "$dirname/ebu-norm/$FNAME-$EXT-ebu-norm.wav" gain $GAIN
+	echo	
+	echo $file
+	echo "$GAIN dB of gain applied with $PEAKR dB of peak limiting..."
+  else
+	# Apply basic gain without limiting
+	sox "$TEMPDIR/$FNAME-$EXT.wav" "$dirname/ebu-norm/$FNAME-$EXT-ebu-norm.wav" gain $GAIN
+	echo	
+	echo $file
+	echo "$GAIN dB of gain applied..."
+  fi
+
 elif 	[ -f "$file" ]
 then
 	((SKIPPED=SKIPPED+1))
