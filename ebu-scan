@@ -6,8 +6,8 @@
 
 if [ $# -eq 0 ]
 then
-  echo "Usage: ebu-scan <input files>"
-  exit
+	echo "Usage: ebu-scan <input files>"
+	exit
 fi
 
 # Find real directory name
@@ -28,14 +28,14 @@ SKIPPED=0
 # Delete existing analysis.txt if it exists
 if [ -f "$dirname/loudness_analysis.txt" ]
 then
-  rm "$dirname/loudness_analysis.txt"
+	rm "$dirname/loudness_analysis.txt"
 fi
 
 #Enumerate audio files
 for file in "$@"; do
 if [ "${file##*.}" == wav ] || [ "${file##*.}" == aif ] || [ "${file##*.}" == aiff ] || [ "${file##*.}" == flac ] || [ "${file##*.}" == ogg ] || [ "${file##*.}" == opus ] || [ "${file##*.}" == mp3 ] || [ "${file##*.}" == wv ];
 then
-((NUMARG=NUMARG+1))
+	((NUMARG=NUMARG+1))
 fi
 done
 
@@ -89,4 +89,5 @@ done
 	cat "$TEMPDIR/skipped.txt"
 	printf "\n" >> "$dirname/loudness_analysis.txt"	
 	date >> "$dirname/loudness_analysis.txt"
+
 rm -r "$TEMPDIR"

@@ -9,30 +9,30 @@
 # Select true peak target based on -t flag or -1 dBTP default
 if [ $# -eq 0 ]
 then
-  echo "Usage: tp-norm <option> <input files>"
-  echo "	Option:"
-  echo "	 -t   Specify true peak target, e.g. -t -2"
- exit
+	echo "Usage: tp-norm <option> <input files>"
+	echo "	Option:"
+	echo "	 -t   Specify true peak target, e.g. -t -2"
+	exit
 elif [ "$1" = "-t" ] && [ -f "$2" ] 
 then
-  TARGET=-1
-  shift
-  echo "Please enter a true peak value (0 or lower) if using the -t flag"
-  exit
+	TARGET=-1
+	shift
+	echo "Please enter a true peak value (0 or lower) if using the -t flag"
+	exit
 elif [ "$1" = "-t" ] && [ "$2" -gt 0 ]
 then
-  echo "Please enter a true peak value 0 or lower"
-  exit
+	echo "Please enter a true peak value 0 or lower"
+	exit
 elif [ "$1" = "-t" ] 
 then
-  TARGET=$2
-  echo "The target is $TARGET dBTP..."
-  shift ; shift
-  sleep 3
+	TARGET=$2
+	echo "The target is $TARGET dBTP..."
+	shift ; shift
+	sleep 3
 else
-  TARGET=-1
-  echo "The target is -1 dBTP..."
-  sleep 3
+	TARGET=-1
+	echo "The target is -1 dBTP..."
+	sleep 3
 fi
 
 TEMPDIR=$(mktemp -d)
