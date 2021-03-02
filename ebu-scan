@@ -33,7 +33,7 @@ fi
 
 #Enumerate audio files
 for file in "$@"; do
-if [ "${file##*.}" == wav ] || [ "${file##*.}" == aif ] || [ "${file##*.}" == aiff ] || [ "${file##*.}" == flac ] || [ "${file##*.}" == ogg ] || [ "${file##*.}" == opus ];
+if [ "${file##*.}" == wav ] || [ "${file##*.}" == aif ] || [ "${file##*.}" == aiff ] || [ "${file##*.}" == flac ] || [ "${file##*.}" == ogg ] || [ "${file##*.}" == opus ] || [ "${file##*.}" == mp3 ] || [ "${file##*.}" == wv ];
 then
 ((NUMARG=NUMARG+1))
 fi
@@ -54,6 +54,23 @@ then
 	echo "$FILENAME|$PEAK|$INT|$SHORT|$MOM" >> "$TEMPDIR/tempanalysis"
 	echo -ne 'Analyzing...'$NUM'/'$NUMARG'\r'  
 	((NUM=NUM+1))
+
+elif [ "${file##*.}" == mp3 ] || [ "${file##*.}" == wv ]
+then
+	# Convert to temp wav file	
+	sox "$file" "$TEMPDIR/$FNAME-$EXT.wav"
+
+	# Loudness, peak and gain analysis
+	ebur128 --full --lufs "$TEMPDIR/$FNAME-$EXT.wav" > "$TEMPDIR/la.txt"
+	INT=$(awk '/loud/ {print $3}' "$TEMPDIR/la.txt") 
+	PEAK=$(awk '/Peak/ {print $3}' "$TEMPDIR/la.txt") 
+	SHORT=$(awk '/Short/ {print $4}' "$TEMPDIR/la.txt")
+	MOM=$(awk '/Mom/ {print $3}' "$TEMPDIR/la.txt")
+	echo "$FILENAME|$PEAK|$INT|$SHORT|$MOM" >> "$TEMPDIR/tempanalysis"
+	echo -ne 'Analyzing...'$NUM'/'$NUMARG'\r'  
+	((NUM=NUM+1))
+
+
 elif [ -f "$file" ]
 then
 	((SKIPPED=SKIPPED+1))

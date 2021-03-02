@@ -61,6 +61,21 @@ then
 	echo	
 	echo $file
 	echo "$GAIN dB of gain applied..."
+elif [ "${file##*.}" == mp3 ] || [ "${file##*.}" == opus ] || [ "${file##*.}" == wv ]
+then
+	# Convert to temp wav file	
+	sox "$file" "$TEMPDIR/$FNAME-$EXT.wav"
+
+	# Peak and gain analysis
+	PEAK_VALUE=$(ebur128 --lufs --full "$TEMPDIR/$FNAME-$EXT.wav" | awk '/Peak/ {print $3}')
+	GAIN=$(echo $TARGET "-" $PEAK_VALUE | bc )
+
+	# Apply gain
+	sox "$TEMPDIR/$FNAME-$EXT.wav" "$dirname/tp-norm/$FNAME-$EXT-tp-norm.wav" gain $GAIN
+	echo	
+	echo $file
+	echo "$GAIN dB of gain applied..."
+
 elif [ -f "$file" ]
 then
 	((SKIPPED=SKIPPED+1))
