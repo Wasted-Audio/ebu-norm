@@ -15,6 +15,3 @@ then
 	cp ebu-norm tp-norm ebu-scan /usr/local/bin
 	echo "Done!!"
 fi
-
-
-
