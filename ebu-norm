@@ -82,7 +82,6 @@ then
 	INT_VALUE=$(awk '/loud/ {print $3}' "$TEMPDIR/la-2ndpass.txt") 
 	PEAK_VALUE2=$(awk '/Peak/ {print $3}' "$TEMPDIR/la-2ndpass.txt")
 	GAIN2=$(echo $TARGET "-" $INT_VALUE | bc )	
-	POSTPEAKS=$(echo $PEAK_VALUE2 "+" $GAIN2 | bc )
 	PEAKR=$(echo $PEAK_VALUE "-" $PEAK_VALUE2 | bc )
 
 	# Apply gain after limiting
@@ -132,7 +131,6 @@ then
 	INT_VALUE=$(awk '/loud/ {print $3}' "$TEMPDIR/la-2ndpass.txt") 
 	PEAK_VALUE2=$(awk '/Peak/ {print $3}' "$TEMPDIR/la-2ndpass.txt")
 	GAIN2=$(echo $TARGET "-" $INT_VALUE | bc )	
-	POSTPEAKS=$(echo $PEAK_VALUE2 "+" $GAIN2 | bc )
 	PEAKR=$(echo $PEAK_VALUE "-" $PEAK_VALUE2 | bc )
 
 	# Apply gain after limiting
