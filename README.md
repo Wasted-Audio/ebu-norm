@@ -3,7 +3,8 @@ Scripts to batch normalize files to integrated or true peak targets
 
 Prerequisites: `ebur128`, `sox`
 
-N.B. File format input is currently limited to formats readable by both `ebur128` and `SoX` and which appear to be wav, aiff (or aif), flac and ogg (with opus readable by `ebu-scan` as it does not rely on any `SoX` processing). For v1.4 onwards, all scripts will only read files with accepted audio extensions.
+Fully supported file inputs: wav, aiff (or aif), flac, ogg.  
+Mp3, opus and wavpack are first converted to wav before normalizing.
 
 ### Process
 Files are analyzed by `ebur128` with the required gain passed to `SoX`. 
@@ -51,6 +52,9 @@ will create a `tp-norm` sub-folder and -2 dBTP FLAC files.
 Script to batch analyze audio files and print true peak and various loudness values to screen and text file.
 
 Prerequisites: `ebur128`
+
+Fully supported file inputs: wav, aiff (or aif), flac, ogg, opus.  
+Mp3 and wavpack are first converted to wav before normalizing.
 
 #### Example
 
