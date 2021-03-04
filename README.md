@@ -12,7 +12,7 @@ Files are analyzed by `ebur128` with the required gain passed to `SoX`.
 In the case of `ebu-norm`, this takes place post-limiting to ensure that the exact integrated value is reached.
 Files are written to a sub-folder with suffix added to filename.
 
-N.B. `loudmax-norm` is ebu-norm but using Loudmax as the sole limiter instead of the compand chain. A major benefit is being able to hit -1 dBTP. It probably goes without saying that `loudmax-norm` requires Loudmax LADSPA be installed in `/usr/lib/ladspa`. It is currently set up only for stereo files so otherwise SoX will silently fail.
+N.B. `loudmax-norm` is ebu-norm but using Loudmax as the sole limiter instead of the compand chain. A major benefit is being able to get very close to, or precisely hit, -1 dBTP. It probably goes without saying that `loudmax-norm` requires Loudmax LADSPA be installed in `/usr/lib/ladspa`. It is currently set up only for stereo files so otherwise SoX will silently fail. User-friendly LMO varible near top of the script is to allow for the more transparent / less aggressive limiting algorithm. Essentially, if you find you have overage, try setting LMO to -1.2 or even -1.5.
 
 ### Usage: 
 ```shell
