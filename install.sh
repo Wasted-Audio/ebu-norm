@@ -13,6 +13,6 @@ then
 	echo "Copying files to usr/local/bin..."
 	sleep 1
 	cp ebu-norm tp-norm ebu-scan loudmax-norm lsp-norm /usr/local/bin
-	cp .bcrc ~
+	cp bcrc ~/.bcrc
 	echo "Done!!"
 fi
