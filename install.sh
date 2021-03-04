@@ -12,6 +12,7 @@ then
 	chmod +x ebu-norm tp-norm ebu-scan
 	echo "Copying files to usr/local/bin..."
 	sleep 1
-	cp ebu-norm tp-norm ebu-scan loudmax-norm /usr/local/bin
+	cp ebu-norm tp-norm ebu-scan loudmax-norm lsp-norm /usr/local/bin
+	cp .bcrc ~
 	echo "Done!!"
 fi
