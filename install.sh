@@ -12,6 +12,6 @@ then
 	chmod +x ebu-norm tp-norm ebu-scan
 	echo "Copying files to usr/local/bin..."
 	sleep 1
-	cp ebu-norm tp-norm ebu-scan /usr/local/bin
+	cp ebu-norm tp-norm ebu-scan loudmax-norm /usr/local/bin
 	echo "Done!!"
 fi
