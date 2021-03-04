@@ -1,4 +1,4 @@
-# ebu-norm & tp-norm
+# ebu-norm | tp-norm | loudmax-norm
 Scripts to batch normalize files to integrated or true peak targets
 
 Prerequisites: `ebur128`, `sox`
@@ -11,6 +11,8 @@ Files are analyzed by `ebur128` with the required gain passed to `SoX`.
 +/− gain is calculated by the target level minus the analyzed integrated or peak value.
 In the case of `ebu-norm`, this takes place post-limiting to ensure that the exact integrated value is reached.
 Files are written to a sub-folder with suffix added to filename.
+
+N.B. `loudmax-norm` is ebu-norm but using Loudmax as the sole limiter instead of the compand chain. A major benefit is being able to hit -1 dBTP. It probably goes without saying that `loudmax-norm` requires Loudmax LADSPA be installed in `/usr/lib/ladspa`. It is currently set up only for stereo files so otherwise SoX will silently fail.
 
 ### Usage: 
 ```shell
