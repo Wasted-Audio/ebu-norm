@@ -2,7 +2,7 @@
 # Script to batch normalize files to EBU R 128 (-23 LUFS Integrated) or another specified target.
 # Copyright © 2021 Elizabeth Harmon
       
-# Usage: ebu-norm <option> <input files>.                          
+# Usage: loudmax-norm <option> <input files>.                          
 # Option: 
 #  -t   Specify integrated loudness target, e.g. -t -20  
 
