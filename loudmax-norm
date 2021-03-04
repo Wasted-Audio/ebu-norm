@@ -64,7 +64,7 @@ then
 
 	if [ $(echo $PEAK_VALUE "+" $REALGAIN "> -1" | bc ) -eq 1 ]
 	then 
-		LIMITER=$(echo ladspa la_LoudMax64.so ldmx_stereo 0 $LMO 1 0)
+		LIMITER=$(echo ladspa -r la_LoudMax64.so ldmx_mono 0 $LMO 1 0)
 
 		# SoX limiter
 		sox "$file" "$TEMPDIR/audioout.$EXT" gain $GAIN $LIMITER 2> /dev/null
@@ -103,7 +103,7 @@ then
 
 	if [ $(echo $PEAK_VALUE "+" $REALGAIN "> -1" | bc) -eq 1 ]
 	then 
-		LIMITER=$(echo ladspa la_LoudMax64.so ldmx_stereo 0 $LMO 1 0) 
+		LIMITER=$(echo ladspa -r la_LoudMax64.so ldmx_mono 0 $LMO 1 0) 
 
 		# SoX limiter
 		sox "$file" "$TEMPDIR/audioout.$EXT" gain $GAIN $LIMITER 2> /dev/null
