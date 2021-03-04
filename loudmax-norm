@@ -67,7 +67,7 @@ then
 		LIMITER=$(echo ladspa la_LoudMax64.so ldmx_stereo 0 $LMO 1 0)
 
 		# SoX limiter
-		sox "$file" "$TEMPDIR/audioout.$EXT" gain $GAIN $LIMITER
+		sox "$file" "$TEMPDIR/audioout.$EXT" gain $GAIN $LIMITER 2> /dev/null
 
 		# Second analysis pass
 		ebur128 --full --lufs "$TEMPDIR/audioout.$EXT" > "$TEMPDIR/la-2ndpass.txt"
@@ -106,7 +106,7 @@ then
 		LIMITER=$(echo ladspa la_LoudMax64.so ldmx_stereo 0 $LMO 1 0) 
 
 		# SoX limiter
-		sox "$file" "$TEMPDIR/audioout.$EXT" gain $GAIN $LIMITER
+		sox "$file" "$TEMPDIR/audioout.$EXT" gain $GAIN $LIMITER 2> /dev/null
 
 		# Second analysis pass
 		ebur128 --full --lufs "$TEMPDIR/audioout.wav" > "$TEMPDIR/la-2ndpass.txt"
