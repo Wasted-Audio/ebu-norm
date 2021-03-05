@@ -78,9 +78,11 @@ File                     True Peak  Integrated  Short-term  Momentary  LRA
 ```
 
 # ebu-plot (alpha)
-Wrapper script to batch produce PNG loudness graphs using PowerShell. Will move to native bash script for v2.0
+Wrapper script to batch produce PNG loudness graphs using adapted PowerShell script.  
+A huge thanks to user L5730 from https://www.audiosciencereview.com/ for the original PowerShell script.  
+====_Will move to native bash script for v2.0_====
 
-Prerequisites: `pwsh` PowerShell, `ffmpeg`, `gnuplot` 
+Prerequisites: `pwsh` (PowerShell), `ffmpeg`, `gnuplot` 
 
 Fully supported file inputs: wav, aiff (or aif), flac, ogg, opus, mp3 and wavpack 
 
@@ -89,4 +91,5 @@ Fully supported file inputs: wav, aiff (or aif), flac, ogg, opus, mp3 and wavpac
 ```shell
 ebu-scan AudioFolder/Sympathique.flac
 ```
+![LoudnessPlot](https://user-images.githubusercontent.com/79659262/110180509-c4909500-7dbe-11eb-8c1a-22b763c08654.png)
 
