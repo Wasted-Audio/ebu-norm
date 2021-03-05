@@ -76,3 +76,17 @@ File                     True Peak  Integrated  Short-term  Momentary  LRA
 11 Over the Rainbow.wav  -6.8       -21.9       -16.6       -14.8      11.9
 
 ```
+
+# ebu-plot (alpha)
+Wrapper script to batch produce PNG loudness graphs using PowerShell. Will move to native bash script for v2.0
+
+Prerequisites: `pwsh` PowerShell, `ffmpeg`, `gnuplot` 
+
+Fully supported file inputs: wav, aiff (or aif), flac, ogg, opus, mp3 and wavpack 
+
+#### Example
+
+```shell
+ebu-scan AudioFolder/Sympathique.flac
+```
+
