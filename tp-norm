@@ -6,6 +6,21 @@
 # Option: 
 #  -t   Specify true peak target, e.g. -t -2 
 
+# Check availability of dependencies
+function checkAvail()
+{
+	which "$1" >/dev/null 2>&1
+	ret=$?
+	if [ $ret -ne 0 ]
+	then
+		echo "tool \"$1\" not found." >&2
+		exit 1
+	fi
+}
+
+for tool in {ebur128,sox,bc}; \
+	do checkAvail "$tool"; done
+
 # Select true peak target based on -t flag or -1 dBTP default
 if [ $# -eq 0 ]
 then
