@@ -9,6 +9,21 @@
 # LSP Limiter output value
 LSPO=-1
 
+# Check availability of dependencies
+function checkAvail()
+{
+	which "$1" >/dev/null 2>&1
+	ret=$?
+	if [ $ret -ne 0 ]
+	then
+		echo "tool \"$1\" not found." >&2
+		exit 1
+	fi
+}
+
+for tool in {ebur128,sox,bc,/usr/lib/ladspa/lsp-plugins-ladspa.so}; \
+	do checkAvail "$tool"; done
+
 # LSP ladspa gain coefficient based on above LSPO value (do not change!)
 LSPGC=$(echo "pow(10,$LSPO/20)" | bc -l ~/.bcrc )
 

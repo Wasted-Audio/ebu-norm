@@ -4,6 +4,21 @@
 
 # Usage: ebu-scan <input files>.                          
 
+# Check availability of dependencies
+function checkAvail()
+{
+	which "$1" >/dev/null 2>&1
+	ret=$?
+	if [ $ret -ne 0 ]
+	then
+		echo "tool \"$1\" not found." >&2
+		exit 1
+	fi
+}
+
+for tool in {ebur128,sox,bc}; \
+	do checkAvail "$tool"; done
+
 if [ $# -eq 0 ]
 then
 	echo "Usage: ebu-scan <input files>"

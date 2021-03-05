@@ -9,6 +9,21 @@
 # Loudmax Output value (change to -1.2 or even -1.5 in case of true peak overage)     
 LMO=-1
 
+# Check availability of dependencies
+function checkAvail()
+{
+	which "$1" >/dev/null 2>&1
+	ret=$?
+	if [ $ret -ne 0 ]
+	then
+		echo "tool \"$1\" not found." >&2
+		exit 1
+	fi
+}
+
+for tool in {ebur128,sox,bc,/usr/lib/ladspa/la_LoudMax64.so}; \
+	do checkAvail "$tool"; done
+
 # Select LUFS target based on -t flag or -23 LUFS default
 if [ $# -eq 0 ]
 then
