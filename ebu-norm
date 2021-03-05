@@ -90,7 +90,7 @@ then
 		LIMITER=$(echo "compand 0,0 3:"$L3","$L3",0,"$L0) 
 
 		# SoX limiter chain
-		sox "$file" "$TEMPDIR/audioout.$EXT" $COMP_1 $COMP_2 $COMP3 $LIMITER
+		sox "$file" "$TEMPDIR/audioout.$EXT" $COMP_1 $COMP_2 $COMP3 $LIMITER 2> /dev/null
 
 		# Second analysis pass
 		ebur128 --full --lufs "$TEMPDIR/audioout.$EXT" > "$TEMPDIR/la-2ndpass.txt"
@@ -139,7 +139,7 @@ then
 		LIMITER=$(echo "compand 0,0 3:"$L3","$L3",0,"$L0) 
 
 		# SoX limiter chain
-		sox "$TEMPDIR/$FNAME-$EXT.wav" "$TEMPDIR/audioout.wav" $COMP_1 $COMP_2 $COMP3 $LIMITER
+		sox "$TEMPDIR/$FNAME-$EXT.wav" "$TEMPDIR/audioout.wav" $COMP_1 $COMP_2 $COMP3 $LIMITER 2> /dev/null
 
 		# Second analysis pass
 		ebur128 --full --lufs "$TEMPDIR/audioout.wav" > "$TEMPDIR/la-2ndpass.txt"
