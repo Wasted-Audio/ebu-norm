@@ -13,9 +13,9 @@ then
 	chmod +x ebu-norm tp-norm ebu-scan loudmax-norm lsp-norm 
 	echo "Copying scripts to usr/local/bin..."
 	sleep 1
+	cp ebu-norm tp-norm ebu-scan loudmax-norm lsp-norm /usr/local/bin
 	echo "Copying bc extensions to ~/.bcrc..."
 	sleep 1
-	cp ebu-norm tp-norm ebu-scan loudmax-norm lsp-norm /usr/local/bin
 	cp bcrc ~/.bcrc
 	echo "Done!!"
 fi
