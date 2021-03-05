@@ -21,7 +21,7 @@ function checkAvail()
 	fi
 }
 
-for tool in {ebur128,sox,bc,/usr/lib/ladspa/lsp-plugins-ladspa.so}; \
+for tool in {ebur128,sox,bc,~/.bcrc,/usr/lib/ladspa/lsp-plugins-ladspa.so}; \
 	do checkAvail "$tool"; done
 
 # LSP ladspa gain coefficient based on above LSPO value (do not change!)
