@@ -21,7 +21,7 @@ function checkAvail()
 	fi
 }
 
-for tool in {ebur128,sox,bc,/usr/lib/lv2/dpl.lv2/dpl.so}; \
+for tool in {ebur128,sox,bc,/usr/local/bin/lv2file,/usr/lib/lv2/dpl.lv2/dpl.so}; \
 	do checkAvail "$tool"; done
 
 # Select LUFS target based on -t flag or -23 LUFS default
