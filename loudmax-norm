@@ -89,7 +89,7 @@ then
 		INT_VALUE=$(awk '/loud/ {print $3}' "$TEMPDIR/la-2ndpass.txt") 
 		PEAK_VALUE2=$(awk '/Peak/ {print $3}' "$TEMPDIR/la-2ndpass.txt")
 		GAIN2=$(echo $TARGET "-" $INT_VALUE | bc )	
-		PEAKR=$(echo $PEAK_VALUE "+" $GAIN "-" $LMO | bc )
+		PEAKR=$(echo $PEAK_VALUE "+" $REALGAIN "-" $PEAK_VALUE2 "-" $GAIN2 | bc )
 
 		# Apply gain after limiting
 		sox "$TEMPDIR/audioout.$EXT" "$dirname/loudmax-norm/$FNAME-loudmax-norm.$EXT" gain $GAIN2
@@ -128,7 +128,7 @@ then
 		INT_VALUE=$(awk '/loud/ {print $3}' "$TEMPDIR/la-2ndpass.txt") 
 		PEAK_VALUE2=$(awk '/Peak/ {print $3}' "$TEMPDIR/la-2ndpass.txt")
 		GAIN2=$(echo $TARGET "-" $INT_VALUE | bc )	
-		PEAKR=$(echo $PEAK_VALUE "+" $GAIN "-" $LMO | bc )
+		PEAKR=$(echo $PEAK_VALUE "+" $REALGAIN "-" $PEAK_VALUE2 "-" $GAIN2 | bc )
 		REALGAIN=$(echo $GAIN "- 1" | bc )
 		
 		# Apply gain after limiting
