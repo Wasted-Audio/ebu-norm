@@ -34,14 +34,15 @@ $lra_high = ($lufs_data | select-string "LRA high:") -replace("[^0-9-.]")
 $lra_low = ($lufs_data | select-string "LRA low:") -replace("[^0-9-.]")
 $I_LUFS = ($lufs_data | select-string "I:      ") -replace("[^0-9-.]")
 $lrange = ($lufs_data | select-string "LRA:      ") -replace("[^0-9-.]")
+$tp = ($lufs_data | select-string "Peak:") -replace("[^0-9-.]")        
 
 $artist = (($lufs_data | select-string ("ARTIST  ")) -split ": ")[1]
 $album = (($lufs_data | select-string ("ALBUM  ")) -split ": ")[1]
 $title = (($lufs_data | select-string ("TITLE  ")) -split ": ")[1]
 $track = (($lufs_data | select-string ("TRACK  ")) -split ": ")[1]
 
-$plottitle = @($artist, $album, $('{0:d2}' -f [int]$track), $title) -join " - "
-if($plottitle -eq " -  - 00 - "){$plottitle = $infile}
+$plottitle = @($artist, $album, $('{0:d2}' -f [int]$track), $title) -join " - " 
+if($plottitle -eq " -  - 00 - "){$plottitle = $infile + ' (True Peak Max =' + $tp + 'dBTP)'}
 
 Write-Host "Data Collected, now formatting to csv file."
 $csv = $(
@@ -69,7 +70,7 @@ Write-Host "Running GNUPlot..."
 $gnuplotinstructions = $(
 "set terminal png truecolor size $w,$h;"
 "set output '$outplot';"
-"set title `"$($plottitle -replace("\\","\\"))`" noenhanced;"
+"set title `"$($plottitle -replace("\\","\\")) \n (True Peak Max = $tp dBTP)`" noenhanced;"
 
 <# for plotting an additional distribution plot
 
