@@ -1,4 +1,4 @@
-# ebu-norm | tp-norm | loudmax-norm | lsp-norm | x42-norm
+# ebu-norm | tp-norm | x42-norm | loudmax-norm | lsp-norm
 Scripts to batch normalize files to integrated or true peak targets
 
 Prerequisites: `ebur128`, `sox`
