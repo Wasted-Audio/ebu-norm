@@ -10,10 +10,10 @@ if [[ $REPLY =~ ^[Yy]$ ]]
 then
 	echo "Making scripts executable..."
 	sleep 1
-	chmod +x ebu-norm tp-norm ebu-scan loudmax-norm lsp-norm x42-norm ebu-plot
+	chmod +x ebu-norm tp-norm ebu-scan loudmax-norm x42-norm ebu-plot
 	echo "Copying scripts to usr/local/bin..."
 	sleep 1
-	cp ebu-norm tp-norm ebu-scan loudmax-norm lsp-norm x42-norm ebu-plot ebu-plot.psl /usr/local/bin
+	cp ebu-norm tp-norm ebu-scan loudmax-norm x42-norm ebu-plot ebu-plot.psl /usr/local/bin
 	echo "Copying bc extensions to ~/.bcrc..."
 	sleep 1
 	cp bcrc ~/.bcrc
