@@ -42,7 +42,7 @@ $title = (($lufs_data | select-string ("TITLE  ")) -split ": ")[1]
 $track = (($lufs_data | select-string ("TRACK  ")) -split ": ")[1]
 
 $plottitle = @($artist, $album, $('{0:d2}' -f [int]$track), $title) -join " - " 
-if($plottitle -eq " -  - 00 - "){$plottitle = $infile + ' (True Peak Max =' + $tp + 'dBTP)'}
+if($plottitle -eq " -  - 00 - "){$plottitle = $infile}
 
 Write-Host "Data Collected, now formatting to csv file."
 $csv = $(
