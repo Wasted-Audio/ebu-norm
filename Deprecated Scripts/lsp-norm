@@ -1,0 +1,164 @@
+#!/bin/bash
+# Script to batch normalize files to EBU R 128 (-23 LUFS Integrated) or another specified target.
+# Copyright © 2021 Elizabeth Harmon
+      
+# Usage: lsp-norm <option> <input files>.                          
+# Option: 
+#  -t   Specify integrated loudness target, e.g. -t -20  
+
+# LSP Limiter output value
+LSPO=-1
+
+# Check availability of dependencies
+function checkAvail()
+{
+	which "$1" >/dev/null 2>&1
+	ret=$?
+	if [ $ret -ne 0 ]
+	then
+		echo "tool \"$1\" not found." >&2
+		exit 1
+	fi
+}
+
+for tool in {ebur128,sox,bc,~/.bcrc,/usr/lib/ladspa/lsp-plugins-ladspa.so}; \
+	do checkAvail "$tool"; done
+
+# LSP ladspa gain coefficient based on above LSPO value (do not change!)
+LSPGC=$(echo "pow(10,$LSPO/20)" | bc -l ~/.bcrc )
+
+# Select LUFS target based on -t flag or -23 LUFS default
+if [ $# -eq 0 ]
+then
+	echo "Usage: lsp-norm <option> <input files>"
+	echo "	Option:" 
+	echo " 	 -t   Specify integrated loudness target, e.g. -t -20" 
+	exit
+elif [ "$1" = "-t" ] && [ -f "$2" ] 
+then
+	TARGET=-23
+	shift
+	echo "Please enter a value (-12 or lower) if using the -t flag"
+	exit
+elif [ "$1" = "-t" ] && [ "$2" -gt -12 ]
+then
+	echo "Please enter an integrated value -12 or lower"
+	exit	
+elif [ "$1" = "-t" ] 
+then
+	TARGET=$2
+	echo "The target is $TARGET LUFS integrated..."
+	shift ; shift
+	sleep 3
+else
+	TARGET=-23
+	echo "The target is $TARGET LUFS integrated..."
+	sleep 3
+fi
+
+# Create subfolder for normalized files
+path=$(realpath "$1")
+dirname="${path%/*}"
+mkdir -p "$dirname/lsp-norm"
+
+# Create temp dir and audio files
+TEMPDIR=$(mktemp -d)	
+touch "$TEMPDIR/skipped.txt"
+SKIPPED=0
+
+for file in "$@"; do
+# Separate name of file 
+FILENAME=${file##*/}
+FNAME="${FILENAME%.*}"
+EXT="${file##*.}"
+if [ "${file##*.}" == wav ] || [ "${file##*.}" == aif ] || [ "${file##*.}" == aiff ] || [ "${file##*.}" == flac ] || [ "${file##*.}" == ogg ];
+then
+	# Loudness, peak and gain analysis
+	ebur128 --full --lufs "$file" > "$TEMPDIR/la.txt"
+	INT_VALUE=$(awk '/loud/ {print $3}' "$TEMPDIR/la.txt") 
+	PEAK_VALUE=$(awk '/Peak/ {print $3}' "$TEMPDIR/la.txt") 
+	GAIN=$(echo $TARGET "-" $INT_VALUE "-" $LSPO | bc )
+	REALGAIN=$(echo $GAIN "+" $LSPO | bc )
+
+	if [ $(echo $PEAK_VALUE "+" $REALGAIN "> -1" | bc ) -eq 1 ]
+	then 
+		LIMITER=$(echo ladspa -r lsp-plugins-ladspa.so http://lsp-plug.in/plugins/ladspa/limiter_mono 0 1 $LSPGC 1 0 4.47214 100 0 1 1 1 5.3183 6.6874 6.6874 15 0 0 0 1 1 1 1 0 0 0 1 0)
+
+		# SoX limiter
+		sox "$file" "$TEMPDIR/audioout.$EXT" gain $GAIN $LIMITER 2> /dev/null
+
+		# Second analysis pass
+		ebur128 --full --lufs "$TEMPDIR/audioout.$EXT" > "$TEMPDIR/la-2ndpass.txt"
+		INT_VALUE=$(awk '/loud/ {print $3}' "$TEMPDIR/la-2ndpass.txt") 
+		PEAK_VALUE2=$(awk '/Peak/ {print $3}' "$TEMPDIR/la-2ndpass.txt")
+		GAIN2=$(echo $TARGET "-" $INT_VALUE | bc )	
+		PEAKR=$(echo $PEAK_VALUE "+" $REALGAIN "-" $PEAK_VALUE2 "-" $GAIN2 | bc )
+
+		# Apply gain after limiting
+		sox "$TEMPDIR/audioout.$EXT" "$dirname/lsp-norm/$FNAME-lsp-norm.$EXT" gain $GAIN2
+		echo	
+		echo $file
+		echo "$REALGAIN dB of gain applied with $PEAKR dB of peak limiting..."
+	else
+		# Apply basic gain without limiting
+		sox "$file" "$dirname/lsp-norm/$FNAME-lsp-norm.$EXT" gain $REALGAIN
+		echo	
+		echo $file
+		echo "$REALGAIN dB of gain applied..."
+	fi
+
+elif [ "${file##*.}" == mp3 ] || [ "${file##*.}" == opus ] || [ "${file##*.}" == wv ]
+then
+	# Convert to temp wav file	
+	sox "$file" "$TEMPDIR/$FNAME-$EXT.wav"
+
+	# Loudness, peak and gain analysis
+	ebur128 --full --lufs "$TEMPDIR/$FNAME-$EXT.wav" > "$TEMPDIR/la.txt"
+	INT_VALUE=$(awk '/loud/ {print $3}' "$TEMPDIR/la.txt") 
+	PEAK_VALUE=$(awk '/Peak/ {print $3}' "$TEMPDIR/la.txt") 
+	GAIN=$(echo $TARGET "-" $INT_VALUE "- $LSPO" | bc )
+	REALGAIN=$(echo $GAIN "+" $LSPO | bc )
+
+	if [ $(echo $PEAK_VALUE "+" $REALGAIN "> -1" | bc) -eq 1 ]
+	then 
+		LIMITER=$(echo ladspa -r lsp-plugins-ladspa.so http://lsp-plug.in/plugins/ladspa/limiter_mono 0 1 $LSPGC 1 0 4.47214 100 0 1 1 1 5.3183 6.6874 6.6874 15 0 0 0 1 1 1 1 0 0 0 1 0) 
+
+		# SoX limiter
+		sox "$TEMPDIR/$FNAME-$EXT.wav" "$TEMPDIR/audioout.wav" gain $GAIN $LIMITER 2> /dev/null
+
+		# Second analysis pass
+		ebur128 --full --lufs "$TEMPDIR/audioout.wav" > "$TEMPDIR/la-2ndpass.txt"
+		INT_VALUE=$(awk '/loud/ {print $3}' "$TEMPDIR/la-2ndpass.txt") 
+		PEAK_VALUE2=$(awk '/Peak/ {print $3}' "$TEMPDIR/la-2ndpass.txt")
+		GAIN2=$(echo $TARGET "-" $INT_VALUE | bc )	
+		PEAKR=$(echo $PEAK_VALUE "+" $REALGAIN "-" $PEAK_VALUE2 "-" $GAIN2 | bc )
+		REALGAIN=$(echo $GAIN "- 1" | bc )
+		
+		# Apply gain after limiting
+		sox "$TEMPDIR/audioout.wav" "$dirname/lsp-norm/$FNAME-$EXT-lsp-norm.wav" gain $GAIN2
+		echo	
+		echo $file
+		echo "$REALGAIN dB of gain applied with $PEAKR dB of peak limiting..."
+	else
+		# Apply basic gain without limiting
+		sox "$TEMPDIR/$FNAME-$EXT.wav" "$dirname/lsp-norm/$FNAME-$EXT-lsp-norm.wav" gain $REALGAIN
+		echo	
+		echo $file
+		echo "$REALGAIN dB of gain applied..."
+	fi
+
+elif 	[ -f "$file" ]
+then
+	((SKIPPED=SKIPPED+1))
+	echo "$file" >> "$TEMPDIR/skipped.txt"
+else
+	:
+fi
+done
+
+echo
+echo "Skipped items: $SKIPPED"
+cat "$TEMPDIR/skipped.txt"
+rm -r "$TEMPDIR"
+echo
+. ${BASH_SOURCE%/*}/ebu-scan "$dirname"/lsp-norm/*
