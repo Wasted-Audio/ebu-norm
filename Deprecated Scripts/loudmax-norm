@@ -86,13 +86,14 @@ then
 
 		# Second analysis pass
 		ebur128 --full --lufs "$TEMPDIR/audioout.$EXT" > "$TEMPDIR/la-2ndpass.txt"
-		INT_VALUE=$(awk '/loud/ {print $3}' "$TEMPDIR/la-2ndpass.txt") 
+		INT_VALUE2=$(awk '/loud/ {print $3}' "$TEMPDIR/la-2ndpass.txt") 
 		PEAK_VALUE2=$(awk '/Peak/ {print $3}' "$TEMPDIR/la-2ndpass.txt")
-		GAIN2=$(echo $TARGET "-" $INT_VALUE | bc )	
+		GAIN2=$(echo $TARGET "-" $INT_VALUE2 | bc )	
 		PEAKR=$(echo $PEAK_VALUE "+" $REALGAIN "-" $PEAK_VALUE2 "-" $GAIN2 | bc )
+		REVGAIN=$(echo $GAIN "+" $GAIN2 | bc )
 
-		# Apply gain after limiting
-		sox "$TEMPDIR/audioout.$EXT" "$dirname/loudmax-norm/$FNAME-loudmax-norm.$EXT" gain $GAIN2
+		# Apply revised gain after integrated check
+		sox "$file" "$dirname/loudmax-norm/$FNAME-loudmax-norm.$EXT" gain $REVGAIN $LIMITER 2> /dev/null
 		echo	
 		echo $file
 		echo "$REALGAIN dB of gain applied with $PEAKR dB of peak limiting..."
@@ -125,14 +126,14 @@ then
 
 		# Second analysis pass
 		ebur128 --full --lufs "$TEMPDIR/audioout.wav" > "$TEMPDIR/la-2ndpass.txt"
-		INT_VALUE=$(awk '/loud/ {print $3}' "$TEMPDIR/la-2ndpass.txt") 
+		INT_VALUE2=$(awk '/loud/ {print $3}' "$TEMPDIR/la-2ndpass.txt") 
 		PEAK_VALUE2=$(awk '/Peak/ {print $3}' "$TEMPDIR/la-2ndpass.txt")
-		GAIN2=$(echo $TARGET "-" $INT_VALUE | bc )	
+		GAIN2=$(echo $TARGET "-" $INT_VALUE2 | bc )	
 		PEAKR=$(echo $PEAK_VALUE "+" $REALGAIN "-" $PEAK_VALUE2 "-" $GAIN2 | bc )
-		REALGAIN=$(echo $GAIN "- 1" | bc )
+		REVGAIN=$(echo $GAIN "+" $GAIN2 | bc )
 		
-		# Apply gain after limiting
-		sox "$TEMPDIR/audioout.wav" "$dirname/loudmax-norm/$FNAME-$EXT-loudmax-norm.wav" gain $GAIN2
+		# Apply revised gain after integrated check
+		sox "$TEMPDIR/$FNAME-$EXT.wav" "$dirname/loudmax-norm/$FNAME-$EXT-loudmax-norm.wav" gain $REVGAIN $LIMITER 2> /dev/null
 		echo	
 		echo $file
 		echo "$REALGAIN dB of gain applied with $PEAKR dB of peak limiting..."

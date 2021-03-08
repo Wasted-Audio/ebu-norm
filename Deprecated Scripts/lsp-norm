@@ -1,10 +1,12 @@
 #!/bin/bash
 # Script to batch normalize files to EBU R 128 (-23 LUFS Integrated) or another specified target.
 # Copyright © 2021 Elizabeth Harmon
-      
+
 # Usage: lsp-norm <option> <input files>.                          
 # Option: 
 #  -t   Specify integrated loudness target, e.g. -t -20  
+
+# N.B. Script requires bcrc installed in home directory
 
 # LSP Limiter output value
 LSPO=-1
@@ -21,11 +23,11 @@ function checkAvail()
 	fi
 }
 
-for tool in {ebur128,sox,bc,~/.bcrc,/usr/lib/ladspa/lsp-plugins-ladspa.so}; \
+for tool in {ebur128,sox,bc,/usr/lib/ladspa/lsp-plugins-ladspa.so}; \
 	do checkAvail "$tool"; done
 
 # LSP ladspa gain coefficient based on above LSPO value (do not change!)
-LSPGC=$(echo "pow(10,$LSPO/20)" | bc -l ~/.bcrc )
+LSPGC=$(echo "pow(10,$LSPO/20)" | bc -l ~/bcrc )
 
 # Select LUFS target based on -t flag or -23 LUFS default
 if [ $# -eq 0 ]
@@ -89,13 +91,14 @@ then
 
 		# Second analysis pass
 		ebur128 --full --lufs "$TEMPDIR/audioout.$EXT" > "$TEMPDIR/la-2ndpass.txt"
-		INT_VALUE=$(awk '/loud/ {print $3}' "$TEMPDIR/la-2ndpass.txt") 
+		INT_VALUE2=$(awk '/loud/ {print $3}' "$TEMPDIR/la-2ndpass.txt") 
 		PEAK_VALUE2=$(awk '/Peak/ {print $3}' "$TEMPDIR/la-2ndpass.txt")
-		GAIN2=$(echo $TARGET "-" $INT_VALUE | bc )	
+		GAIN2=$(echo $TARGET "-" $INT_VALUE2 | bc )	
 		PEAKR=$(echo $PEAK_VALUE "+" $REALGAIN "-" $PEAK_VALUE2 "-" $GAIN2 | bc )
+		REVGAIN=$(echo $GAIN "+" $GAIN2 | bc )
 
-		# Apply gain after limiting
-		sox "$TEMPDIR/audioout.$EXT" "$dirname/lsp-norm/$FNAME-lsp-norm.$EXT" gain $GAIN2
+		# Apply revised gain after integrated check
+		sox "$file" "$dirname/lsp-norm/$FNAME-lsp-norm.$EXT" gain $REVGAIN $LIMITER 2> /dev/null
 		echo	
 		echo $file
 		echo "$REALGAIN dB of gain applied with $PEAKR dB of peak limiting..."
@@ -128,14 +131,14 @@ then
 
 		# Second analysis pass
 		ebur128 --full --lufs "$TEMPDIR/audioout.wav" > "$TEMPDIR/la-2ndpass.txt"
-		INT_VALUE=$(awk '/loud/ {print $3}' "$TEMPDIR/la-2ndpass.txt") 
+		INT_VALUE2=$(awk '/loud/ {print $3}' "$TEMPDIR/la-2ndpass.txt") 
 		PEAK_VALUE2=$(awk '/Peak/ {print $3}' "$TEMPDIR/la-2ndpass.txt")
-		GAIN2=$(echo $TARGET "-" $INT_VALUE | bc )	
+		GAIN2=$(echo $TARGET "-" $INT_VALUE2 | bc )	
 		PEAKR=$(echo $PEAK_VALUE "+" $REALGAIN "-" $PEAK_VALUE2 "-" $GAIN2 | bc )
-		REALGAIN=$(echo $GAIN "- 1" | bc )
+		REVGAIN=$(echo $GAIN "+" $GAIN2 | bc )
 		
-		# Apply gain after limiting
-		sox "$TEMPDIR/audioout.wav" "$dirname/lsp-norm/$FNAME-$EXT-lsp-norm.wav" gain $GAIN2
+		# Apply revised gain after integrated check
+		sox "$TEMPDIR/$FNAME-$EXT.wav" "$dirname/lsp-norm/$FNAME-$EXT-lsp-norm.wav" gain $REVGAIN $LIMITER 2> /dev/null
 		echo	
 		echo $file
 		echo "$REALGAIN dB of gain applied with $PEAKR dB of peak limiting..."
