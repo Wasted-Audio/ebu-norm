@@ -51,15 +51,15 @@ ForEach($rawentry in $lufs_data){
     $array_tmsir = $entry -split(":") -split (" ") | ?{$_ -ne ""} | Select-Object -index 4,9,11,13,16,19,20
 
     if($array_tmsir){
-        $time = $array_tmsir[0]
+        $time = $([math]::Round($array_tmsir[0],1))
         $Momentary = $array_tmsir[1]
         $Short = $array_tmsir[2]
         $Integrated = $array_tmsir[3]
-        $lra = $array_tmsir[4]
+        $lra = if($time -lt 3.4){"-"}else{$array_tmsir[4]}
         $tpk_l = $array_tmsir[5]
         $tpk_r = $array_tmsir[6]
 
-        "$([math]::Round($time,1))" + ",$Momentary,$Short,$Integrated,$lra,$tpk_l,$tpk_r"
+        "$time,$Momentary,$Short,$Integrated,$lra,$tpk_l,$tpk_r"
     }
 }
 )
@@ -140,8 +140,10 @@ $gnuplotinstructions = $(
 #"               '' using (`$0/10):( (`$6>`$7?(`$6-`$2):(`$7-`$2)) ):( (`$6>`$7?(`$6-`$2):(`$7-`$2)) ) axes x1y2 with filledcurves above y1=0 fc palette z fs transparent solid 0.1 noborder title 'PLR', \"
 #"               '' using (`$0/10):2 axes x1y1 with histeps lc rgb '#ff8000' notitle, \"
 "               '' using (`$0/10):3 axes x1y1 with lines lc rgb '#8080ff' lw 3 title 'Short-Term', \"
+              
 "               '' using (`$0/10):4 axes x1y1 with lines lc rgb '#0000ff' lw 4 title 'Integrated: $I_LUFS LUFS', \"
 "               '' using (`$0/10):5 axes x1y2 with lines lc rgb '#008000' lw 3 title 'Loudness Range: $lrange LU'; \"
+
 
 ) | Out-String
 $gnuplotinstructions | Out-File $gnuplotcommandfile -Encoding ASCII
