@@ -8,9 +8,9 @@
 #  -t   Specify integrated loudness target, e.g. -t -20  
 
 # sound-gambit threshold value (change to lower value (range 0 to -10), e.g. -1.3 in case of true peak overage)     
-THR=-1.3
+THR=-1
 # sound-gambit release time (default 50, range 1 to 1000)
-REL=50
+REL=10
 
 # Check availability of dependencies
 function checkAvail()
@@ -84,17 +84,18 @@ then
 	if [ $(echo $PEAK_VALUE "+" $GAIN "> -1" | bc ) -eq 1 ]
 	then
 		# sound-gambit 
-		sound-gambit -i $GAIN -t $THR -r $REL "$file" "$TEMPDIR/audioout.$EXT"
+		sound-gambit -i $GAIN -t $THR -r $REL -T "$file" "$TEMPDIR/audioout.$EXT"
 		
 		# Second analysis pass
 		ebur128 --full --lufs "$TEMPDIR/audioout.$EXT" > "$TEMPDIR/la-2ndpass.txt"
-		INT_VALUE=$(awk '/loud/ {print $3}' "$TEMPDIR/la-2ndpass.txt") 
+		INT_VALUE2=$(awk '/loud/ {print $3}' "$TEMPDIR/la-2ndpass.txt") 
 		PEAK_VALUE2=$(awk '/Peak/ {print $3}' "$TEMPDIR/la-2ndpass.txt")
-		GAIN2=$(echo $TARGET "-" $INT_VALUE | bc )	
+		GAIN2=$(echo $TARGET "-" $INT_VALUE2 | bc )	
 		PEAKR=$(echo $PEAK_VALUE "+" $GAIN "-" $PEAK_VALUE2 "-" $GAIN2 | bc )
+		REVGAIN=$(echo $GAIN "+" $GAIN2 | bc )
 
-		# Apply gain after limiting
-		sox "$TEMPDIR/audioout.$EXT" "$dirname/x42-norm/$FNAME-x42-norm.$EXT" gain $GAIN2
+		# Apply revised gain after integrated check
+		sound-gambit -i $REVGAIN -t $THR -r $REL -T "$file" "$dirname/x42-norm/$FNAME-x42-norm.$EXT"
 		echo	
 		echo $file
 		echo "$GAIN dB of gain applied with $PEAKR dB of peak limiting..."
@@ -120,17 +121,18 @@ then
 	if [ $(echo $PEAK_VALUE "+" $GAIN "> -1" | bc) -eq 1 ]
 	then 
 		# sound-gambit 
-		sound-gambit -i $GAIN -t $THR -r $REL "$TEMPDIR/$FNAME-$EXT.wav" "$TEMPDIR/audioout.wav"
+		sound-gambit -i $GAIN -t $THR -r $REL -T "$TEMPDIR/$FNAME-$EXT.wav" "$TEMPDIR/audioout.wav"
 
 		# Second analysis pass
 		ebur128 --full --lufs "$TEMPDIR/audioout.wav" > "$TEMPDIR/la-2ndpass.txt"
-		INT_VALUE=$(awk '/loud/ {print $3}' "$TEMPDIR/la-2ndpass.txt") 
+		INT_VALUE2=$(awk '/loud/ {print $3}' "$TEMPDIR/la-2ndpass.txt") 
 		PEAK_VALUE2=$(awk '/Peak/ {print $3}' "$TEMPDIR/la-2ndpass.txt")
-		GAIN2=$(echo $TARGET "-" $INT_VALUE | bc )	
+		GAIN2=$(echo $TARGET "-" $INT_VALUE2 | bc )	
 		PEAKR=$(echo $PEAK_VALUE "+" $GAIN "-" $PEAK_VALUE2 "-" $GAIN2 | bc )
+		REVGAIN=$(echo $GAIN "+" $GAIN2 | bc )
 		
-		# Apply gain after limiting
-		sox "$TEMPDIR/audioout.wav" "$dirname/x42-norm/$FNAME-$EXT-x42-norm.wav" gain $GAIN2
+		# Apply revised gain after integrated check
+		sound-gambit -i $REVGAIN -t $THR -r $REL -T "$file" "$dirname/x42-norm/$FNAME-x42-norm.$EXT"
 		echo	
 		echo $file
 		echo "$GAIN dB of gain applied with $PEAKR dB of peak limiting..."
