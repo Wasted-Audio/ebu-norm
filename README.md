@@ -98,6 +98,7 @@ Fully supported file inputs: wav, aiff (or aif), flac, ogg, opus, mp3 and wavpac
 ```shell
 ebu-scan AudioFolder/Sympathique.flac
 ```
-![QhGGTNP](https://user-images.githubusercontent.com/79659262/110221563-c0797b80-7e81-11eb-9f8d-272b77a4df28.png)
+![11 - Sympathique-flac-ebu-plot](https://user-images.githubusercontent.com/79659262/110367247-49b4bd80-7ffc-11eb-927a-648785b7d2d5.png)
+
 
 
