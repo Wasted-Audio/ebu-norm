@@ -132,7 +132,7 @@ then
 		REVGAIN=$(echo $GAIN "+" $GAIN2 | bc )
 		
 		# Apply revised gain after integrated check
-		sound-gambit -i $REVGAIN -t $THR -r $REL -T "$TEMPDIR/$FNAME-$EXT.wav" "$dirname/x42-norm/$FNAME-x42-norm.$EXT"
+		sound-gambit -i $REVGAIN -t $THR -r $REL -T "$TEMPDIR/$FNAME-$EXT.wav" "$dirname/x42-norm/$FNAME-$EXT-x42-norm.wav"
 		echo	
 		echo $file
 		echo "$GAIN dB of gain applied with $PEAKR dB of peak limiting..."
