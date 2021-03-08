@@ -1,4 +1,4 @@
-# ebu-norm | tp-norm | x42-norm | loudmax-norm
+# ebu-norm | tp-norm | x42-norm
 Scripts to batch normalize files to integrated or true peak targets
 
 Prerequisites: `ebur128`, `sox`
@@ -12,7 +12,7 @@ Files are analyzed by `ebur128` with the required gain passed to `SoX`.
 In the case of `ebu-norm`, this takes place post-limiting to ensure that the exact integrated value is reached.
 Files are written to a sub-folder with suffix added to filename.
 
-N.B. `x42-norm` and `loudmax-norm` are essentially `ebu-norm` but using sound-gambit (cli version of x42 limiter) or Loudmax respectively as the sole limiter instead of the compand chain. A major benefit is being able to get very close to, or precisely hit, -1 dBTP. It probably goes without saying that `x42-norm` requires `sound-gambit` (https://github.com/x42/sound-gambit) installed in `/usr/bin` and `loudmax-norm` (https://loudmax.blogspot.com/) requires the Loudmax ladpsa plugin to be installed in `/usr/lib/ladspa`. User-friendly variables near top of each script are present to allow for the more transparent / less aggressive sound-gambit and Loudmax limiting algorithms. Essentially, if you find you have true peak overage with problematic files, try setting the threshold variable to -1.2 or even as low as -1.5. `sound-gambit` also includes a release time variable.
+N.B. `x42-norm` is essentially `ebu-norm` but using sound-gambit (cli version of x42 limiter) as the sole true-peak limiter instead of the compand chain. A major benefit is being able to get very close to, or precisely hit, -1 dBTP. It probably goes without saying that `x42-norm` requires `sound-gambit` (https://github.com/x42/sound-gambit) installed in `/usr/bin`. User-friendly variables near top of the script are present to allow for tweaking of the limiter settings. Essentially, if you find you have true peak overage with severely problematic files, try setting the threshold variable a little lower.
 
 With all these scripts, limiting—true peak or otherwise—is no substitute for correctly mastered files in terms of dynamics. If you find yourself applying more than a couple of dB of peak limiting, perhaps it is a sign to return to the original file and re-mix/master.
 
