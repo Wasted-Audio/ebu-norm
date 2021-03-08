@@ -104,7 +104,7 @@ $gnuplotinstructions = $(
 "set datafile separator ',';"
 "set key inside center top Left reverse maxrows 2 width -4;"
 
-"set yrange [-60:3];"
+"set yrange [-60:6];"
 "set ylabel 'Loudness (LUFS)';"
 "set ytic 6;"
 "set mytics 2;"
@@ -137,7 +137,7 @@ $gnuplotinstructions = $(
 "$lra_high with filledcurves above y=$lra_low fc rgb '#00aa00' fs transparent solid 0.1 noborder title 'LRA H: $lra_high - L: $lra_low LUFS', \"
 "'$outcsv' using (`$0/10):2 axes x1y1 with lines lc rgb '#ff0000' lw 1 title 'Momentary', \"
 "               '' using (`$0/10):( (`$6>`$7?`$6:`$7)<0?(`$6>`$7?`$6:`$7):0 ) with lines lc rgb '#00ff30' lw 1 title 'truePeak', \"
-"               '' using (`$0/10):( (`$6>`$7?(`$6-`$3):(`$7-`$3)) ) : ( (`$6>`$7?(`$6-`$3):(`$7-`$3)) ) with boxes lc palette fs transparent solid 0.1 noborder axes x1y2 notitle , \"
+"               '' using (`$0/10):( (`$6>`$7?(`$6-`$3):(`$7-`$3)) ) : ( (`$6>`$7?(`$6-`$3):(`$7-`$3)) ) with boxes lc palette fs transparent solid 0.3 noborder axes x1y2 notitle , \"
 #"               '' using (`$0/10):( (`$6>`$7?(`$6-`$2):(`$7-`$2)) ):( (`$6>`$7?(`$6-`$2):(`$7-`$2)) ) axes x1y2 with filledcurves above y1=0 fc palette z fs transparent solid 0.1 noborder title 'PLR', \"
 #"               '' using (`$0/10):2 axes x1y1 with histeps lc rgb '#ff8000' notitle, \"
 "               '' using (`$0/10):3 axes x1y1 with lines lc rgb '#8080ff' lw 3 title 'Short-Term', \"
