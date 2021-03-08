@@ -3,7 +3,6 @@
 # Copyright © 2021 Elizabeth Harmon
 
 echo "This script will install batch normalizer/scanner scripts to usr/local/bin"
-echo "and bcrc (bc calculator extensions) to ~/.bcrc"
 read -p "Do you wish to continue?" -n 1 -r
 echo
 if [[ $REPLY =~ ^[Yy]$ ]]
