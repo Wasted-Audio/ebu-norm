@@ -26,7 +26,7 @@ function checkAvail()
 	fi
 }
 
-for tool in {pwsh,ffmpeg,gnuplot,/usr/local/bin/ebu-plot.psl}; \
+for tool in {pwsh,ffmpeg,gnuplot}; \
 	do checkAvail "$tool"; done
 
 SKIPPED=0
