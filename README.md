@@ -1,7 +1,7 @@
 # ebu-norm | tp-norm | x42-norm
 Scripts to batch normalize files to integrated or true peak targets
 
-Prerequisites: `ebur128`, `sox`
+Prerequisites: `ebur128`, `sox` (and `sound-gambit` for `x42-norm`)
 
 Fully supported file inputs: wav, aiff (or aif), flac, ogg.  
 Mp3, opus and wavpack are first converted to wav before normalizing.
