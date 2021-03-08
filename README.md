@@ -37,9 +37,9 @@ ebu-norm AudioFolder/*.wav
 will create an `ebu-norm` sub-folder and create -23 LUFS integrated WAV files (default).
 
 ```shell
-ebu-norm -t -20 AudioFolder/*.flac 
+x42-norm -t -16 AudioFolder/*.flac 
 ```
-will create an `ebu-norm` sub-folder and create -20 LUFS integrated FLAC files. 
+will create an `x42-norm` sub-folder and create -16 LUFS integrated FLAC files with true-peak limiting as required. 
 
 ```shell
 tp-norm AudioFolder/*.wav
