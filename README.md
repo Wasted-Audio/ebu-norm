@@ -29,14 +29,12 @@ tp-norm [-t target_value] infiles
 ```
 where ```-t``` allows for an true peak target other than -1 dBTP.
 
-If true peaks would rise above -1 dBTP, the `sound-gambit` true-peak limiter is engaged.
-
 ```shell
 x42-norm [-t target_value] infiles
 ```
 where ```-t``` allows for an integrated target other than -23 LUFS.
 
-As of v.0.3, if true peaks rise above -1 dBTP, a `SoX` limiter chain is engaged.
+If true peaks would rise above -1 dBTP, the `sound-gambit` true-peak limiter is engaged.
 
 #### Examples
 
