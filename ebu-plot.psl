@@ -140,7 +140,7 @@ $gnuplotinstructions = $(
 "$lra_high with filledcurves above y=$lra_low fc rgb '#00aa00' fs transparent solid 0.1 noborder title 'LRA H: $lra_high - L: $lra_low LUFS', \"
 "'$outcsv' using (`$0/10):2 axes x1y1 with lines lc rgb '#ff0000' lw 1 title 'Momentary', \"
 "               '' using (`$0/10):(`$10) with lines lc rgb '#00ff00' lw 1 title 'True Peak', \"
-"               '' using (`$0/10):((`$10>=-1)?(`$10):(1/0)) with lines lc rgb '#ff0000' lw 1 title 'True Peak Overs', \"
+"               '' using (`$0/10):((`$10>=-1)?(`$10):(1/0)) with lines lc rgb '#ff0000' lw 5 title 'True Peak Overs', \"
 "               '' using (`$0/10):( (`$6>`$7?(`$6-`$3):(`$7-`$3)) ) : ( (`$6>`$7?(`$6-`$3):(`$7-`$3)) ) with boxes lc palette fs transparent solid 0.3 noborder axes x1y2 notitle , \"
 #"               '' using (`$0/10):( (`$6>`$7?(`$6-`$2):(`$7-`$2)) ):( (`$6>`$7?(`$6-`$2):(`$7-`$2)) ) axes x1y2 with filledcurves above y1=0 fc palette z fs transparent solid 0.1 noborder title 'PLR', \"
 #"               '' using (`$0/10):2 axes x1y1 with histeps lc rgb '#ff8000' notitle, \"
