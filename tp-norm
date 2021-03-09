@@ -18,7 +18,7 @@ function checkAvail()
 	fi
 }
 
-for tool in {ebur128,sox,bc}; \
+for tool in {ffmpeg,sox,bc}; \
 	do checkAvail "$tool"; done
 
 # Select true peak target based on -t flag or -1 dBTP default
@@ -65,10 +65,11 @@ FILENAME=${file##*/}
 FNAME="${FILENAME%.*}"
 EXT="${file##*.}"
 
-if [ "${file##*.}" == wav ] || [ "${file##*.}" == aif ] || [ "${file##*.}" == aiff ] || [ "${file##*.}" == flac ] || [ "${file##*.}" == ogg ];
+if [ "${file##*.}" == wav ] || [ "${file##*.}" == aif ] || [ "${file##*.}" == aiff ] || [ "${file##*.}" == flac ];
 then
 	# Peak and gain analysis
-	PEAK_VALUE=$(ebur128 --lufs --full "$file" | awk '/Peak/ {print $3}')
+	ffmpeg -i $file -af ebur128=peak=true -ar 4410 -f null - > "$TEMPDIR/la.txt" 2>&1 
+	PEAK_VALUE=$(awk '/Peak:/ {print $2}' "$TEMPDIR/la.txt") 
 	GAIN=$(echo $TARGET "-" $PEAK_VALUE | bc )
 
 	# Apply gain
@@ -76,13 +77,14 @@ then
 	echo	
 	echo $file
 	echo "$GAIN dB of gain applied..."
-elif [ "${file##*.}" == mp3 ] || [ "${file##*.}" == opus ] || [ "${file##*.}" == wv ]
+elif [ "${file##*.}" == mp3 ] || [ "${file##*.}" == opus ] || [ "${file##*.}" == ogg ] || [ "${file##*.}" == wv ]
 then
 	# Convert to temp wav file	
-	sox "$file" "$TEMPDIR/$FNAME-$EXT.wav"
+	ffmpeg -v 'fatal' -i "$file" "$TEMPDIR/$FNAME-$EXT.wav"
 
 	# Peak and gain analysis
-	PEAK_VALUE=$(ebur128 --lufs --full "$TEMPDIR/$FNAME-$EXT.wav" | awk '/Peak/ {print $3}')
+	ffmpeg -i "$TEMPDIR/$FNAME-$EXT.wav" -af ebur128=peak=true -ar 4410 -f null - > "$TEMPDIR/la.txt" 2>&1	
+	PEAK_VALUE=$(awk '/Peak:/ {print $2}' "$TEMPDIR/la.txt")  
 	GAIN=$(echo $TARGET "-" $PEAK_VALUE | bc )
 
 	# Apply gain
