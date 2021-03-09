@@ -50,7 +50,12 @@ tp-norm -t -2 AudioFolder/*.flac
 will create a `tp-norm` sub-folder and -2 dBTP FLAC files. 
 
 # ebu-scan
-Script to batch analyze audio files and print true peak and various loudness values to screen and text file.
+
+### Usage: 
+```shell
+ebu-scan [-a] infiles
+```
+Script to batch analyze audio files and print true peak and various loudness values to screen and text file. If the `-a` flag is added, all files are treated as part of an album and total loudness results are additionally returned. 
 
 Prerequisites: `ffmpeg`
 
