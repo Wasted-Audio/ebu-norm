@@ -24,7 +24,7 @@ function checkAvail()
 	fi
 }
 
-for tool in {ffmpeg,bc,/usr/bin/sound-gambit}; \
+for tool in {ffmpeg,bc,sound-gambit}; \
 	do checkAvail "$tool"; done
 
 # Select LUFS target based on -t flag or -23 LUFS default
