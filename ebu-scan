@@ -58,35 +58,18 @@ for file in "$@"; do
 # Separate name of file 
 FILENAME=${file##*/}
 
-if [ "${file##*.}" == wav ] || [ "${file##*.}" == aif ] || [ "${file##*.}" == aiff ] || [ "${file##*.}" == flac ] || [ "${file##*.}" == ogg ] || [ "${file##*.}" == opus ];
+if [ "${file##*.}" == wav ] || [ "${file##*.}" == aif ] || [ "${file##*.}" == aiff ] || [ "${file##*.}" == flac ] || [ "${file##*.}" == ogg ] || [ "${file##*.}" == opus ] || [ "${file##*.}" == mp3 ] || [ "${file##*.}" == wv ];
 then
 	# Loudness, peak and gain analysis
-	ebur128 --full --lufs "$file" > "$TEMPDIR/la.txt"
-	INT=$(awk '/loud/ {print $3}' "$TEMPDIR/la.txt") 
-	PEAK=$(awk '/Peak/ {print $3}' "$TEMPDIR/la.txt") 
-	SHORT=$(awk '/Short/ {print $4}' "$TEMPDIR/la.txt")
-	MOM=$(awk '/Mom/ {print $3}' "$TEMPDIR/la.txt")
-	LRA=$(awk '/range/ {print $3}' "$TEMPDIR/la.txt")
+	ffmpeg -i $file -af ebur128=peak=true -ar 4410 -f null - > "$TEMPDIR/la.txt" 2>&1
+	INT=$(awk '/I:   / {print $2}' "$TEMPDIR/la.txt") 
+	PEAK=$(awk '/Peak:/ {print $2}' "$TEMPDIR/la.txt") 
+	SHORT=$(grep -o 'S: .*' "$TEMPDIR/la.txt" | awk '{print $2}' | sort -rn | head -n 1) 
+	MOM=$(grep -o 'M: .*' "$TEMPDIR/la.txt" | awk '{print $2}' | sort -rn | head -n 1)
+	LRA=$(awk '/LRA:     / {print $2}' "$TEMPDIR/la.txt")
 	echo "$FILENAME|$PEAK|$INT|$SHORT|$MOM|$LRA" >> "$TEMPDIR/tempanalysis"
 	echo -ne 'Analyzing...'$NUM'/'$NUMARG'\r'  
 	((NUM=NUM+1))
-
-elif [ "${file##*.}" == mp3 ] || [ "${file##*.}" == wv ]
-then
-	# Convert to temp wav file	
-	sox "$file" "$TEMPDIR/$FNAME-$EXT.wav"
-
-	# Loudness, peak and gain analysis
-	ebur128 --full --lufs "$TEMPDIR/$FNAME-$EXT.wav" > "$TEMPDIR/la.txt"
-	INT=$(awk '/loud/ {print $3}' "$TEMPDIR/la.txt") 
-	PEAK=$(awk '/Peak/ {print $3}' "$TEMPDIR/la.txt") 
-	SHORT=$(awk '/Short/ {print $4}' "$TEMPDIR/la.txt")
-	MOM=$(awk '/Mom/ {print $3}' "$TEMPDIR/la.txt")
-	LRA=$(awk '/range/ {print $3}' "$TEMPDIR/la.txt")
-	echo "$FILENAME|$PEAK|$INT|$SHORT|$MOM|$LRA" >> "$TEMPDIR/tempanalysis"
-	echo -ne 'Analyzing...'$NUM'/'$NUMARG'\r'  
-	((NUM=NUM+1))
-
 
 elif [ -f "$file" ]
 then

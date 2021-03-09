@@ -24,7 +24,7 @@ function checkAvail()
 	fi
 }
 
-for tool in {ebur128,sox,bc,/usr/bin/sound-gambit}; \
+for tool in {ffmpeg,bc,/usr/bin/sound-gambit}; \
 	do checkAvail "$tool"; done
 
 # Select LUFS target based on -t flag or -23 LUFS default
@@ -73,12 +73,12 @@ for file in "$@"; do
 FILENAME=${file##*/}
 FNAME="${FILENAME%.*}"
 EXT="${file##*.}"
-if [ "${file##*.}" == wav ] || [ "${file##*.}" == aif ] || [ "${file##*.}" == aiff ] || [ "${file##*.}" == flac ] || [ "${file##*.}" == ogg ];
+if [ "${file##*.}" == wav ] || [ "${file##*.}" == aif ] || [ "${file##*.}" == aiff ] || [ "${file##*.}" == flac ];
 then
 	# Loudness, peak and gain analysis
-	ebur128 --full --lufs "$file" > "$TEMPDIR/la.txt"
-	INT_VALUE=$(awk '/loud/ {print $3}' "$TEMPDIR/la.txt") 
-	PEAK_VALUE=$(awk '/Peak/ {print $3}' "$TEMPDIR/la.txt") 
+	ffmpeg -i $file -af ebur128=peak=true -ar 4410 -f null - > "$TEMPDIR/la.txt" 2>&1
+	INT_VALUE=$(awk '/I:   / {print $2}' "$TEMPDIR/la.txt") 
+	PEAK_VALUE=$(awk '/Peak:/ {print $2}' "$TEMPDIR/la.txt")  
 	GAIN=$(echo $TARGET "-" $INT_VALUE | bc )
 
 	if [ $(echo $PEAK_VALUE "+" $GAIN "> -1" | bc ) -eq 1 ]
@@ -87,9 +87,9 @@ then
 		sound-gambit -i $GAIN -t $THR -r $REL -T "$file" "$TEMPDIR/audioout.$EXT"
 		
 		# Second analysis pass
-		ebur128 --full --lufs "$TEMPDIR/audioout.$EXT" > "$TEMPDIR/la-2ndpass.txt"
-		INT_VALUE2=$(awk '/loud/ {print $3}' "$TEMPDIR/la-2ndpass.txt") 
-		PEAK_VALUE2=$(awk '/Peak/ {print $3}' "$TEMPDIR/la-2ndpass.txt")
+		ffmpeg -i "$TEMPDIR/audioout.$EXT" -af ebur128=peak=true -ar 4410 -f null - > "$TEMPDIR/la-2ndpass.txt" 2>&1
+		INT_VALUE2=$(awk '/I:   / {print $2}' "$TEMPDIR/la-2ndpass.txt") 
+		PEAK_VALUE2=$(awk '/Peak:/ {print $2}' "$TEMPDIR/la-2ndpass.txt")
 		GAIN2=$(echo $TARGET "-" $INT_VALUE2 | bc )	
 		PEAKR=$(echo $PEAK_VALUE "+" $GAIN "-" $PEAK_VALUE2 "-" $GAIN2 | bc )
 		REVGAIN=$(echo $GAIN "+" $GAIN2 | bc )
@@ -101,48 +101,49 @@ then
 		echo "$GAIN dB of gain applied with $PEAKR dB of peak limiting..."
 	else
 		# Apply basic gain without limiting
-		sox "$file" "$dirname/x42-norm/$FNAME-x42-norm.$EXT" gain $GAIN
+		sound-gambit -i $GAIN -t $THR -r $REL -T "$file" "$dirname/x42-norm/$FNAME-x42-norm.$EXT"
 		echo	
 		echo $file
 		echo "$GAIN dB of gain applied..."
 	fi
 
-elif [ "${file##*.}" == mp3 ] || [ "${file##*.}" == opus ] || [ "${file##*.}" == wv ]
+elif [ "${file##*.}" == mp3 ] || [ "${file##*.}" == wv ] || [ "${file##*.}" == ogg ] || [ "${file##*.}" == opus ]
 then
 	# Convert to temp wav file	
-	sox "$file" "$TEMPDIR/$FNAME-$EXT.wav"
+#	ffmpeg -i "$file" "$TEMPDIR/$FNAME-$EXT.wav"
 
 	# Loudness, peak and gain analysis
-	ebur128 --full --lufs "$TEMPDIR/$FNAME-$EXT.wav" > "$TEMPDIR/la.txt"
-	INT_VALUE=$(awk '/loud/ {print $3}' "$TEMPDIR/la.txt") 
-	PEAK_VALUE=$(awk '/Peak/ {print $3}' "$TEMPDIR/la.txt") 
+	ffmpeg -i "$file" -af ebur128=peak=true -ar 4410 -f null - > "$TEMPDIR/la.txt" 2>&1	
+	INT_VALUE=$(awk '/I:   / {print $2}' "$TEMPDIR/la.txt") 
+	PEAK_VALUE=$(awk '/Peak:/ {print $2}' "$TEMPDIR/la.txt")  
 	GAIN=$(echo $TARGET "-" $INT_VALUE | bc )
 
-	if [ $(echo $PEAK_VALUE "+" $GAIN "> -1" | bc) -eq 1 ]
+	if [ $(echo $PEAK_VALUE "+" $GAIN "> -1" | bc ) -eq 1 ]
 	then
 		# sound-gambit 
-		sound-gambit -i $GAIN -t $THR -r $REL -T "$TEMPDIR/$FNAME-$EXT.wav" "$TEMPDIR/audioout.wav"
+		ffmpeg -i "$file" -f wav - | sound-gambit -i $GAIN -t $THR -r $REL -T - "$TEMPDIR/audioout.wav"
 
 		# Second analysis pass
-		ebur128 --full --lufs "$TEMPDIR/audioout.wav" > "$TEMPDIR/la-2ndpass.txt"
-		INT_VALUE2=$(awk '/loud/ {print $3}' "$TEMPDIR/la-2ndpass.txt") 
-		PEAK_VALUE2=$(awk '/Peak/ {print $3}' "$TEMPDIR/la-2ndpass.txt")
+		ffmpeg -i "$TEMPDIR/audioout.wav" -af ebur128=peak=true -ar 4410 -f null - > "$TEMPDIR/la-2ndpass.txt" 2>&1
+		INT_VALUE2=$(awk '/I:   / {print $2}' "$TEMPDIR/la-2ndpass.txt")  
+		PEAK_VALUE2=$(awk '/Peak:/ {print $2}' "$TEMPDIR/la-2ndpass.txt")
 		GAIN2=$(echo $TARGET "-" $INT_VALUE2 | bc )	
 		PEAKR=$(echo $PEAK_VALUE "+" $GAIN "-" $PEAK_VALUE2 "-" $GAIN2 | bc )
 		REVGAIN=$(echo $GAIN "+" $GAIN2 | bc )
 		
 		# Apply revised gain after integrated check
-		sound-gambit -i $REVGAIN -t $THR -r $REL -T "$TEMPDIR/$FNAME-$EXT.wav" "$dirname/x42-norm/$FNAME-$EXT-x42-norm.wav"
+		ffmpeg -i "$file" -f wav - | sound-gambit -i $REVGAIN -t $THR -r $REL -T - "$dirname/x42-norm/$FNAME-$EXT-x42-norm.wav"
 		echo	
 		echo $file
 		echo "$GAIN dB of gain applied with $PEAKR dB of peak limiting..."
 	else
 		# Apply basic gain without limiting
-		sox "$TEMPDIR/$FNAME-$EXT.wav" "$dirname/x42-norm/$FNAME-$EXT-x42-norm.wav" gain $GAIN
+		sound-gambit -i $GAIN -t $THR -r $REL "$TEMPDIR/$FNAME-$EXT.wav" "$dirname/x42-norm/$FNAME-$EXT-x42-norm.wav"
 		echo	
 		echo $file
 		echo "$GAIN dB of gain applied..."
 	fi
+
 
 elif 	[ -f "$file" ]
 then
