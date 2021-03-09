@@ -55,7 +55,7 @@ will create a `tp-norm` sub-folder and -2 dBTP FLAC files.
 ```shell
 ebu-scan [-a] infiles
 ```
-Script to batch analyze audio files and print true peak and various loudness values to screen and text file. If the `-a` flag is added, all files are treated as part of an album and total loudness results are additionally returned. 
+Script to batch analyze audio files and print true peak and various loudness values to screen and text file. If the `-a` flag is added, all files are treated as part of an album and total loudness results are additionally returned. In this instance all files should be the same file format and channel count.
 
 Prerequisites: `ffmpeg`
 
