@@ -3,7 +3,7 @@
 # Copyright © 2021 Elizabeth Harmon
 # Utilizing sound-gambit by Robin Gareus https://github.com/x42/sound-gambit
       
-# Usage: x42-norm <option> <input files>.                          
+# Usage: ebu-norm <option> <input files>.                          
 # Option: 
 #  -t   Specify integrated loudness target, e.g. -t -20  
 
@@ -30,7 +30,7 @@ for tool in {ffmpeg,bc,/usr/bin/sound-gambit}; \
 # Select LUFS target based on -t flag or -23 LUFS default
 if [ $# -eq 0 ]
 then
-	echo "Usage: x42-norm <option> <input files>"
+	echo "Usage: ebu-norm <option> <input files>"
 	echo "	Option:" 
 	echo " 	 -t   Specify integrated loudness target, e.g. -t -20" 
 	exit
@@ -61,7 +61,7 @@ fi
 # Create subfolder for normalized files
 path=$(realpath "$1")
 dirname="${path%/*}"
-mkdir -p "$dirname/x42-norm"
+mkdir -p "$dirname/ebu-norm"
 
 # Create temp dir and audio files
 TEMPDIR=$(mktemp -d)	
@@ -95,13 +95,13 @@ then
 		REVGAIN=$(echo $GAIN "+" $GAIN2 | bc )
 
 		# Apply revised gain after integrated check
-		sound-gambit -i $REVGAIN -t $THR -r $REL -T "$file" "$dirname/x42-norm/$FNAME-x42-norm.$EXT"
+		sound-gambit -i $REVGAIN -t $THR -r $REL -T "$file" "$dirname/ebu-norm/$FNAME-ebu-norm.$EXT"
 		echo	
 		echo $file
 		echo "$GAIN dB of gain applied with $PEAKR dB of peak limiting..."
 	else
 		# Apply basic gain without limiting
-		sound-gambit -i $GAIN -t $THR -r $REL -T "$file" "$dirname/x42-norm/$FNAME-x42-norm.$EXT"
+		sound-gambit -i $GAIN -t $THR -r $REL -T "$file" "$dirname/ebu-norm/$FNAME-ebu-norm.$EXT"
 		echo	
 		echo $file
 		echo "$GAIN dB of gain applied..."
@@ -129,13 +129,13 @@ then
 		REVGAIN=$(echo $GAIN "+" $GAIN2 | bc )
 		
 		# Apply revised gain after integrated check
-		ffmpeg -v 'fatal' -i "$file" -f wav - | sound-gambit -i $REVGAIN -t $THR -r $REL -T - "$dirname/x42-norm/$FNAME-$EXT-x42-norm.wav"
+		ffmpeg -v 'fatal' -i "$file" -f wav - | sound-gambit -i $REVGAIN -t $THR -r $REL -T - "$dirname/ebu-norm/$FNAME-$EXT-ebu-norm.wav"
 		echo	
 		echo $file
 		echo "$GAIN dB of gain applied with $PEAKR dB of peak limiting..."
 	else
 		# Apply basic gain without limiting
-		ffmpeg -v 'fatal' -i "$file" -f wav - | sound-gambit -i $GAIN -t $THR -r $REL - "$dirname/x42-norm/$FNAME-$EXT-x42-norm.wav"
+		ffmpeg -v 'fatal' -i "$file" -f wav - | sound-gambit -i $GAIN -t $THR -r $REL - "$dirname/ebu-norm/$FNAME-$EXT-ebu-norm.wav"
 		echo	
 		echo $file
 		echo "$GAIN dB of gain applied..."
@@ -156,4 +156,4 @@ echo "Skipped items: $SKIPPED"
 cat "$TEMPDIR/skipped.txt"
 rm -r "$TEMPDIR"
 echo
-. ${BASH_SOURCE%/*}/ebu-scan "$dirname"/x42-norm/*
+. ${BASH_SOURCE%/*}/ebu-scan "$dirname"/ebu-norm/*
