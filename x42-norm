@@ -109,9 +109,6 @@ then
 
 elif [ "${file##*.}" == mp3 ] || [ "${file##*.}" == wv ] || [ "${file##*.}" == ogg ] || [ "${file##*.}" == opus ]
 then
-	# Convert to temp wav file	
-#	ffmpeg -i "$file" "$TEMPDIR/$FNAME-$EXT.wav"
-
 	# Loudness, peak and gain analysis
 	ffmpeg -i "$file" -af ebur128=peak=true -ar 4410 -f null - > "$TEMPDIR/la.txt" 2>&1	
 	INT_VALUE=$(awk '/I:   / {print $2}' "$TEMPDIR/la.txt") 
@@ -121,7 +118,7 @@ then
 	if [ $(echo $PEAK_VALUE "+" $GAIN "> -1" | bc ) -eq 1 ]
 	then
 		# sound-gambit 
-		ffmpeg -i "$file" -f wav - | sound-gambit -i $GAIN -t $THR -r $REL -T - "$TEMPDIR/audioout.wav"
+		ffmpeg -v 'fatal' -i "$file" -f wav - | sound-gambit -i $GAIN -t $THR -r $REL -T - "$TEMPDIR/audioout.wav"
 
 		# Second analysis pass
 		ffmpeg -i "$TEMPDIR/audioout.wav" -af ebur128=peak=true -ar 4410 -f null - > "$TEMPDIR/la-2ndpass.txt" 2>&1
@@ -132,13 +129,13 @@ then
 		REVGAIN=$(echo $GAIN "+" $GAIN2 | bc )
 		
 		# Apply revised gain after integrated check
-		ffmpeg -i "$file" -f wav - | sound-gambit -i $REVGAIN -t $THR -r $REL -T - "$dirname/x42-norm/$FNAME-$EXT-x42-norm.wav"
+		ffmpeg -v 'fatal' -i "$file" -f wav - | sound-gambit -i $REVGAIN -t $THR -r $REL -T - "$dirname/x42-norm/$FNAME-$EXT-x42-norm.wav"
 		echo	
 		echo $file
 		echo "$GAIN dB of gain applied with $PEAKR dB of peak limiting..."
 	else
 		# Apply basic gain without limiting
-		sound-gambit -i $GAIN -t $THR -r $REL "$TEMPDIR/$FNAME-$EXT.wav" "$dirname/x42-norm/$FNAME-$EXT-x42-norm.wav"
+		ffmpeg -v 'fatal' -i "$file" -f wav - | sound-gambit -i $GAIN -t $THR -r $REL - "$dirname/x42-norm/$FNAME-$EXT-x42-norm.wav"
 		echo	
 		echo $file
 		echo "$GAIN dB of gain applied..."
