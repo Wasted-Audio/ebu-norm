@@ -52,17 +52,21 @@ ForEach($rawentry in $lufs_data){
 
     if($array_tmsir){
         $time = $([math]::Round($array_tmsir[0],1))
- 	$Momentary = if($array_tmsir[1] -eq "-120.7"){"-"}else{$array_tmsir[1]}
+        $Momentary = if($array_tmsir[1] -eq "-120.7"){"-"}else{$array_tmsir[1]}
         $Short = if($array_tmsir[2] -eq "-120.7"){"-"}else{$array_tmsir[2]}
         $Integrated = if([decimal]($array_tmsir[3]) -le "-70.0"){"-"}else{$array_tmsir[3]}
         $lra = if($time -lt 3.4){"-"}else{$array_tmsir[4]}
-        $tpk_l = $array_tmsir[5]
-        $tpk_r = $array_tmsir[6]
-	$tpk = if([decimal]$tpk_l -gt [decimal]$tpk_r){$tpk_l}else{$tpk_r}
-        $over = if([decimal]$tpk -ge "0"){$tpk}else{"-"}
-        $under = if([decimal]$tpk -lt "0"){$tpk}else{"-"}
+        
+        $tpk_l = if($array_tmsir[5] -match "-inf"){"-144"}else{$array_tmsir[5]}
+        $tpk_r = if($array_tmsir[6] -match "inf"){"-144"}else{$array_tmsir[6]}
+#        $tpk_l = $array_tmsir[5]
+#        $tpk_r = $array_tmsir[6]
 
-        "$time,$Momentary,$Short,$Integrated,$lra,$tpk_l,$tpk_r,$over,$under,$tpk"
+        $tpk = if([decimal]$tpk_l -gt [decimal]$tpk_r){$tpk_l}else{$tpk_r}
+#        $over = if([decimal]$tpk -ge "-1"){$tpk}else{"-"}
+#        $under = if([decimal]$tpk -lt "-1"){$tpk}else{"-"}
+
+        "$time,$Momentary,$Short,$Integrated,$lra,$tpk_l,$tpk_r,$tpk"
     }
 }
 )
@@ -74,36 +78,6 @@ $gnuplotinstructions = $(
 "set terminal png truecolor size $w,$h;"
 "set output '$outplot';"
 "set title `"$($plottitle -replace("\\","\\")) \n (True Peak Max = $tp dBTP)`" noenhanced;"
-
-<# for plotting an additional distribution plot
-
-"set multiplot layout 1,2;"
-
-"set datafile separator ',';"
-"bin_width = 0.1;"
-"bin_number(x) = floor(x/bin_width);"
-"rounded(x) = bin_width * ( bin_number(x) + 0.5 );"
-"set table '$gnuplot_histodata';"
-"plot '$outcsv' using (rounded(`$2)):(1) smooth frequency;"
-"unset table;"
-"unset datafile separator;"
-
-"set key left top;"
-"stats '$gnuplot_histodata' using 2:1 nooutput;"
-"set xrange [1:(STATS_max_x)];"
-"set yrange [-60:0];"
-"set xtics 1;"
-"set ytics 6;"
-"set grid;"
-"plot '$gnuplot_histodata' using (`$2 * 1.41):1 smooth bezier title 'Loudness Distribution';"
-"unset grid;"
-"unset xrange;"
-"unset yrange;"
-"unset xtics;"
-"unset ytics;"
-"unset key;"
-#>
-
 "set datafile separator ',';"
 "set key inside center top Left reverse maxrows 2 width -4;"
 
@@ -124,14 +98,6 @@ $gnuplotinstructions = $(
 "set format x '%M:%S';"
 "set xlabel 'Time (MM:SS)';"
 "set autoscale xfix;"
-
-#"set timefmt '%M:%S';"
-
-#"set obj 1 rect at (($entries/10)-45),($lra_high +3) size char strlen('LRA High: $lra_high LUFS'), char 1 fc 'white' front;"
-#"set label 1 'LRA High: $lra_high LUFS' at (($entries/10)-45),($lra_high +3) front center font `",10`";"
-#"set obj 2 rect at (($entries/10)-45),($lra_low -3) size char strlen('LRA Low: $lra_low LUFS'), char 1 fc 'white' front;"
-#"set label 2 'LRA Low: $lra_low LUFS' at (($entries/10)-45),($lra_low -3) front center font `",10`";"
-
 "set palette model RGB defined (0 'red', 6 'red', 9 'orange', 13 'green', 21 'blue');"
 "set cbrange [0:21];"
 "unset colorbox;"
@@ -139,11 +105,9 @@ $gnuplotinstructions = $(
 "plot \"
 "$lra_high with filledcurves above y=$lra_low fc rgb '#00aa00' fs transparent solid 0.1 noborder title 'LRA H: $lra_high - L: $lra_low LUFS', \"
 "'$outcsv' using (`$0/10):2 axes x1y1 with lines lc rgb '#ff0000' lw 1 title 'Momentary', \"
-"               '' using (`$0/10):(`$10) with lines lc rgb '#00ff00' lw 1 title 'True Peak', \"
-"               '' using (`$0/10):((`$10>=-1)?(`$10):(1/0)) with lines lc rgb '#ff0000' lw 5 title 'True Peak Overs', \"
-"               '' using (`$0/10):( (`$6>`$7?(`$6-`$3):(`$7-`$3)) ) : ( (`$6>`$7?(`$6-`$3):(`$7-`$3)) ) with boxes lc palette fs transparent solid 0.3 noborder axes x1y2 notitle , \"
-#"               '' using (`$0/10):( (`$6>`$7?(`$6-`$2):(`$7-`$2)) ):( (`$6>`$7?(`$6-`$2):(`$7-`$2)) ) axes x1y2 with filledcurves above y1=0 fc palette z fs transparent solid 0.1 noborder title 'PLR', \"
-#"               '' using (`$0/10):2 axes x1y1 with histeps lc rgb '#ff8000' notitle, \"
+"               '' using (`$0/10):(`$8) with lines lc rgb '#00ff00' lw 1 title 'True Peak', \"
+"               '' using (`$0/10):((`$8>-1)?(`$8):(1/0)) with lines lc rgb '#ff0000' lw 5 title 'True Peak Overs', \"
+"               '' using (`$0/10):(`$8-`$3):(`$8-`$3) with boxes lc palette fs transparent solid 0.3 noborder axes x1y2 notitle, \"
 "               '' using (`$0/10):3 axes x1y1 with lines lc rgb '#8080ff' lw 3 title 'Short-Term', \"
               
 "               '' using (`$0/10):4 axes x1y1 with lines lc rgb '#0000ff' lw 4 title 'Integrated: $I_LUFS LUFS', \"
@@ -153,17 +117,10 @@ $gnuplotinstructions = $(
 ) | Out-String
 $gnuplotinstructions | Out-File $gnuplotcommandfile -Encoding ASCII
 
-<#
-$bytes = [System.Text.Encoding]::UTF8.GetBytes($gnuplotinstructions)
-$str = [system.text.Encoding]::UTF8.GetString($bytes)
-$str
-#>
-
 gnuplot "$gnuplotcommandfile"
 
 Remove-Item -LiteralPath $outcsv
 Remove-Item -LiteralPath $gnuplotcommandfile
 Remove-Item -LiteralPath $gnuplot_histodata -ErrorAction silentlycontinue
 
-# & $outplot
 exit
