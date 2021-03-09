@@ -9,7 +9,7 @@ Mp3, opus, ogg and wavpack are first converted to wav before normalizing.
 ### Process
 Files are analyzed by `ffmpeg` with the required gain passed to either `ffmpeg` or `sound-gambit`. 
 +/− gain is calculated by the target level minus the analyzed integrated or peak value.
-In the case of `ebu-norm`, this uses two analysis passes to ensure that the exact integrated value is reached.
+In the case of `ebu-norm`, it uses two analysis passes to ensure that the exact integrated value is reached.
 Files are written to a sub-folder with suffix added to filename. User-friendly variables near the top of the `ebu-norm` script are present to allow for tweaking of the limiter settings. 
 
 With `ebu-norm`, limiting is no substitute for correctly mastered files in terms of dynamics. If you find yourself applying more than a couple of dB of peak limiting, perhaps it is a sign to return to the original file and re-mix/master.
