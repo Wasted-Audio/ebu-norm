@@ -18,7 +18,7 @@ function checkAvail()
 	fi
 }
 
-for tool in {ffmpeg,sox,bc}; \
+for tool in {ffmpeg,bc}; \
 	do checkAvail "$tool"; done
 
 # Select true peak target based on -t flag or -1 dBTP default
@@ -73,7 +73,7 @@ then
 	GAIN=$(echo $TARGET "-" $PEAK_VALUE | bc )
 
 	# Apply gain
-	sox "$file" "$dirname/tp-norm/$FNAME-tp-norm.$EXT" gain $GAIN
+	ffmpeg -v 'fatal' -i "$file" -filter:a "volume=$GAIN dB" "$dirname/tp-norm/$FNAME-tp-norm.$EXT"
 	echo	
 	echo $file
 	echo "$GAIN dB of gain applied..."
@@ -88,7 +88,7 @@ then
 	GAIN=$(echo $TARGET "-" $PEAK_VALUE | bc )
 
 	# Apply gain
-	sox "$TEMPDIR/$FNAME-$EXT.wav" "$dirname/tp-norm/$FNAME-$EXT-tp-norm.wav" gain $GAIN
+	ffmpeg -v 'fatal' -i "$TEMPDIR/$FNAME-$EXT.wav" -filter:a "volume=$GAIN dB" "$dirname/tp-norm/$FNAME-$EXT-tp-norm.wav"
 	echo	
 	echo $file
 	echo "$GAIN dB of gain applied..."
