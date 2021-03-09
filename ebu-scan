@@ -16,7 +16,7 @@ function checkAvail()
 	fi
 }
 
-for tool in {ffmpeg}; \
+for tool in ffmpeg ; \
 	do checkAvail "$tool"; done
 
 if [ $# -eq 0 ]
