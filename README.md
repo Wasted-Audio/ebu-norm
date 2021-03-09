@@ -1,20 +1,20 @@
-# ebu-norm | tp-norm | x42-norm
+# ebu-norm | tp-norm
 Scripts to batch normalize files to integrated or true peak targets
 
-Prerequisites: `ebur128`, `sox` (and `sound-gambit` for `x42-norm`)
+Prerequisites: `ffmpeg`, `sound-gambit`
 
-Fully supported file inputs: wav, aiff (or aif), flac, ogg.  
-Mp3, opus and wavpack are first converted to wav before normalizing.
+Fully supported file inputs: wav, aiff (or aif), flac.  
+Mp3, opus, ogg and wavpack are first converted to wav before normalizing.
 
 ### Process
-Files are analyzed by `ebur128` with the required gain passed to `SoX`. 
+Files are analyzed by `ffmpeg` with the required gain passed to either `ffmpeg` or `sound-gambit`. 
 +/− gain is calculated by the target level minus the analyzed integrated or peak value.
-In the case of `ebu-norm`, this takes place post-limiting to ensure that the exact integrated value is reached.
+In the case of `ebu-norm`, this uses two analysis passes to ensure that the exact integrated value is reached.
 Files are written to a sub-folder with suffix added to filename.
 
-N.B. `x42-norm` is essentially `ebu-norm` but using sound-gambit (cli version of x42 limiter) as the sole true-peak limiter instead of the compand chain. A major benefit is being able to get very close to, or precisely hit, -1 dBTP. It probably goes without saying that `x42-norm` requires `sound-gambit` (https://github.com/x42/sound-gambit) installed in `/usr/bin`. User-friendly variables near top of the script are present to allow for tweaking of the limiter settings. Essentially, if you find you have true peak overage with severely problematic files, try setting the threshold variable a little lower.
+User-friendly variables near top of the script are present to allow for tweaking of the limiter settings. Essentially, if you find you have true peak overage with severely problematic files, try setting the threshold variable a little lower.
 
-With all these scripts, limiting—true peak or otherwise—is no substitute for correctly mastered files in terms of dynamics. If you find yourself applying more than a couple of dB of peak limiting, perhaps it is a sign to return to the original file and re-mix/master.
+With `ebu-norm`, limiting is no substitute for correctly mastered files in terms of dynamics. If you find yourself applying more than a couple of dB of peak limiting, perhaps it is a sign to return to the original file and re-mix/master.
 
 ### Usage: 
 ```shell
@@ -22,19 +22,12 @@ ebu-norm [-t target_value] infiles
 ```
 where ```-t``` allows for an integrated target other than -23 LUFS.
 
-If true peaks would rise above -1 dBTP, a `SoX` limiter chain is engaged.
+If true peaks would rise above -1 dBTP, the `sound-gambit` true-peak limiter is engaged.
 
 ```shell
 tp-norm [-t target_value] infiles
 ```
 where ```-t``` allows for an true peak target other than -1 dBTP.
-
-```shell
-x42-norm [-t target_value] infiles
-```
-where ```-t``` allows for an integrated target other than -23 LUFS.
-
-If true peaks would rise above -1 dBTP, the `sound-gambit` true-peak limiter is engaged.
 
 #### Examples
 
@@ -44,15 +37,14 @@ ebu-norm AudioFolder/*.wav
 will create an `ebu-norm` sub-folder and create -23 LUFS integrated WAV files (default).
 
 ```shell
-x42-norm -t -16 AudioFolder/*.flac 
+ebu-norm -t -16 AudioFolder/*.flac 
 ```
-will create an `x42-norm` sub-folder and create -16 LUFS integrated FLAC files with true-peak limiting as required. 
+will create an `ebu-norm` sub-folder and create -16 LUFS integrated FLAC files with true-peak limiting as required. 
 
 ```shell
 tp-norm AudioFolder/*.wav
 ```
 will create a `tp-norm` sub-folder and -1 dBTP WAV files (default). 
-
 
 ```shell
 tp-norm -t -2 AudioFolder/*.flac
@@ -62,10 +54,9 @@ will create a `tp-norm` sub-folder and -2 dBTP FLAC files.
 # ebu-scan
 Script to batch analyze audio files and print true peak and various loudness values to screen and text file.
 
-Prerequisites: `ebur128`
+Prerequisites: `ffmpeg`
 
-Fully supported file inputs: wav, aiff (or aif), flac, ogg, opus.  
-Mp3 and wavpack are first converted to wav before normalizing.
+Fully supported file inputs: wav, aiff (or aif), flac, ogg, opus, mp3 and wavpack.  
 
 #### Example
 
