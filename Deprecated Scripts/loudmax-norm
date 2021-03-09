@@ -21,7 +21,7 @@ function checkAvail()
 	fi
 }
 
-for tool in {ebur128,sox,bc,/usr/lib/ladspa/la_LoudMax64.so}; \
+for tool in {ffmpeg,sox,bc,/usr/lib/ladspa/la_LoudMax64.so}; \
 	do checkAvail "$tool"; done
 
 # Select LUFS target based on -t flag or -23 LUFS default
@@ -68,12 +68,12 @@ for file in "$@"; do
 FILENAME=${file##*/}
 FNAME="${FILENAME%.*}"
 EXT="${file##*.}"
-if [ "${file##*.}" == wav ] || [ "${file##*.}" == aif ] || [ "${file##*.}" == aiff ] || [ "${file##*.}" == flac ] || [ "${file##*.}" == ogg ];
+if [ "${file##*.}" == wav ] || [ "${file##*.}" == aif ] || [ "${file##*.}" == aiff ] || [ "${file##*.}" == flac ]
 then
 	# Loudness, peak and gain analysis
-	ebur128 --full --lufs "$file" > "$TEMPDIR/la.txt"
-	INT_VALUE=$(awk '/loud/ {print $3}' "$TEMPDIR/la.txt") 
-	PEAK_VALUE=$(awk '/Peak/ {print $3}' "$TEMPDIR/la.txt") 
+	ffmpeg -i $file -af ebur128=peak=true -ar 4410 -f null - > "$TEMPDIR/la.txt" 2>&1
+	INT_VALUE=$(awk '/I:   / {print $2}' "$TEMPDIR/la.txt")
+	PEAK_VALUE=$(awk '/Peak:/ {print $2}' "$TEMPDIR/la.txt")  
 	GAIN=$(echo $TARGET "-" $INT_VALUE "-" $LMO | bc )
 	REALGAIN=$(echo $GAIN "+" $LMO | bc )
 
@@ -85,9 +85,9 @@ then
 		sox "$file" "$TEMPDIR/audioout.$EXT" gain $GAIN $LIMITER 2> /dev/null
 
 		# Second analysis pass
-		ebur128 --full --lufs "$TEMPDIR/audioout.$EXT" > "$TEMPDIR/la-2ndpass.txt"
-		INT_VALUE2=$(awk '/loud/ {print $3}' "$TEMPDIR/la-2ndpass.txt") 
-		PEAK_VALUE2=$(awk '/Peak/ {print $3}' "$TEMPDIR/la-2ndpass.txt")
+		ffmpeg -i "$TEMPDIR/audioout.$EXT" -af ebur128=peak=true -ar 4410 -f null - > "$TEMPDIR/la-2ndpass.txt" 2>&1
+		INT_VALUE2=$(awk '/I:   / {print $2}' "$TEMPDIR/la-2ndpass.txt") 
+		PEAK_VALUE2=$(awk '/Peak:/ {print $2}' "$TEMPDIR/la-2ndpass.txt")
 		GAIN2=$(echo $TARGET "-" $INT_VALUE2 | bc )	
 		PEAKR=$(echo $PEAK_VALUE "+" $REALGAIN "-" $PEAK_VALUE2 "-" $GAIN2 | bc )
 		REVGAIN=$(echo $GAIN "+" $GAIN2 | bc )
@@ -105,19 +105,19 @@ then
 		echo "$REALGAIN dB of gain applied..."
 	fi
 
-elif [ "${file##*.}" == mp3 ] || [ "${file##*.}" == opus ] || [ "${file##*.}" == wv ]
+elif [ "${file##*.}" == mp3 ] || [ "${file##*.}" == opus ] || [ "${file##*.}" == ogg ] || [ "${file##*.}" == wv ] 
 then
 	# Convert to temp wav file	
-	sox "$file" "$TEMPDIR/$FNAME-$EXT.wav"
+	ffmpeg -v 'fatal' -i "$file" "$TEMPDIR/$FNAME-$EXT.wav"
 
 	# Loudness, peak and gain analysis
-	ebur128 --full --lufs "$TEMPDIR/$FNAME-$EXT.wav" > "$TEMPDIR/la.txt"
-	INT_VALUE=$(awk '/loud/ {print $3}' "$TEMPDIR/la.txt") 
-	PEAK_VALUE=$(awk '/Peak/ {print $3}' "$TEMPDIR/la.txt") 
+	ffmpeg -i "$TEMPDIR/$FNAME-$EXT.wav" -af ebur128=peak=true -ar 4410 -f null - > "$TEMPDIR/la.txt" 2>&1
+	INT_VALUE=$(awk '/I:   / {print $2}' "$TEMPDIR/la.txt") 
+	PEAK_VALUE=$(awk '/Peak:/ {print $2}' "$TEMPDIR/la.txt")  
 	GAIN=$(echo $TARGET "-" $INT_VALUE "- $LMO" | bc )
 	REALGAIN=$(echo $GAIN "+" $LMO | bc )
 
-	if [ $(echo $PEAK_VALUE "+" $REALGAIN "> -1" | bc) -eq 1 ]
+	if [ $(echo $PEAK_VALUE "+" $REALGAIN "> -1" | bc ) -eq 1 ]
 	then 
 		LIMITER=$(echo ladspa -r la_LoudMax64.so ldmx_mono 0 $LMO 1 0) 
 
@@ -125,9 +125,9 @@ then
 		sox "$TEMPDIR/$FNAME-$EXT.wav" "$TEMPDIR/audioout.wav" gain $GAIN $LIMITER 2> /dev/null
 
 		# Second analysis pass
-		ebur128 --full --lufs "$TEMPDIR/audioout.wav" > "$TEMPDIR/la-2ndpass.txt"
-		INT_VALUE2=$(awk '/loud/ {print $3}' "$TEMPDIR/la-2ndpass.txt") 
-		PEAK_VALUE2=$(awk '/Peak/ {print $3}' "$TEMPDIR/la-2ndpass.txt")
+		ffmpeg -i "$TEMPDIR/audioout.wav" -af ebur128=peak=true -ar 4410 -f null - > "$TEMPDIR/la-2ndpass.txt" 2>&1
+		INT_VALUE2=$(awk '/I:   / {print $2}' "$TEMPDIR/la-2ndpass.txt")  
+		PEAK_VALUE2=$(awk '/Peak:/ {print $2}' "$TEMPDIR/la-2ndpass.txt")
 		GAIN2=$(echo $TARGET "-" $INT_VALUE2 | bc )	
 		PEAKR=$(echo $PEAK_VALUE "+" $REALGAIN "-" $PEAK_VALUE2 "-" $GAIN2 | bc )
 		REVGAIN=$(echo $GAIN "+" $GAIN2 | bc )
