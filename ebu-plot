@@ -14,6 +14,15 @@
 W=1280
 H=720
 
+#Check for audio files
+NUMARG=0
+for file in "$@"; do
+if [ "${file##*.}" == wav ] || [ "${file##*.}" == aif ] || [ "${file##*.}" == aiff ] || [ "${file##*.}" == flac ] || [ "${file##*.}" == ogg ] || [ "${file##*.}" == opus ] || [ "${file##*.}" == mp3 ] || [ "${file##*.}" == wv ];
+then
+	((NUMARG=NUMARG+1))
+fi
+done
+
 # Check availability of dependencies
 function checkAvail()
 {
@@ -28,6 +37,19 @@ function checkAvail()
 
 for tool in {pwsh,ffmpeg,gnuplot}; \
 	do checkAvail "$tool"; done
+
+# Command usage check
+if [ $# -eq 0 ]
+then
+	echo "Usage: ebu-plot <input files>"
+	exit
+elif [ $NUMARG -eq 0 ]
+then
+	echo "No compatible audio files present"
+	exit
+else
+	:
+fi
 
 SKIPPED=0
 SKIPFILE=$(mktemp)

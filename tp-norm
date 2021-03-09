@@ -21,6 +21,15 @@ function checkAvail()
 for tool in {ffmpeg,bc}; \
 	do checkAvail "$tool"; done
 
+#Check for audio files
+NUMARG=0
+for file in "$@"; do
+if [ "${file##*.}" == wav ] || [ "${file##*.}" == aif ] || [ "${file##*.}" == aiff ] || [ "${file##*.}" == flac ] || [ "${file##*.}" == ogg ] || [ "${file##*.}" == opus ] || [ "${file##*.}" == mp3 ] || [ "${file##*.}" == wv ];
+then
+	((NUMARG=NUMARG+1))
+fi
+done
+
 # Select true peak target based on -t flag or -1 dBTP default
 if [ $# -eq 0 ]
 then
@@ -28,6 +37,11 @@ then
 	echo "	Option:"
 	echo "	 -t   Specify true peak target, e.g. -t -2"
 	exit
+elif [ $NUMARG -eq 0 ]
+then
+	echo "No compatible audio files present"
+	exit
+
 elif [ "$1" = "-t" ] && [ -f "$2" ] 
 then
 	TARGET=-1
@@ -68,7 +82,7 @@ EXT="${file##*.}"
 if [ "${file##*.}" == wav ] || [ "${file##*.}" == aif ] || [ "${file##*.}" == aiff ] || [ "${file##*.}" == flac ];
 then
 	# Peak and gain analysis
-	ffmpeg -i $file -af ebur128=peak=true -ar 4410 -f null - > "$TEMPDIR/la.txt" 2>&1 
+	ffmpeg -i "$file" -af ebur128=peak=true -ar 4410 -f null - > "$TEMPDIR/la.txt" 2>&1 
 	PEAK_VALUE=$(awk '/Peak:/ {print $2}' "$TEMPDIR/la.txt") 
 	GAIN=$(echo $TARGET "-" $PEAK_VALUE | bc )
 
