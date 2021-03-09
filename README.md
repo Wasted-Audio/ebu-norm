@@ -12,7 +12,7 @@ Files are analyzed by `ffmpeg` with the required gain passed to either `ffmpeg` 
 In the case of `ebu-norm`, it uses two analysis passes to ensure that the exact integrated value is reached.
 Files are written to a sub-folder with suffix added to filename. User-friendly variables near the top of the `ebu-norm` script are present to allow for tweaking of the limiter settings. 
 
-With `ebu-norm`, limiting is no substitute for correctly mastered files in terms of dynamics. If you find yourself applying more than a couple of dB of peak limiting, perhaps it is a sign to return to the original file and re-mix/master.
+When using `ebu-norm`with large positive gain amounts into the limiter, it should be noted that excessive limiting is no substitute for correctly mastered files. If you find yourself applying more than a couple of dB of peak limiting, perhaps it is a sign to return to the original file in order to use a compressor plugin or to apply manual gain-riding.
 
 ### Usage: 
 ```shell
