@@ -19,10 +19,25 @@ function checkAvail()
 for tool in ffmpeg ; \
 	do checkAvail "$tool"; done
 
+#Check for audio files and enumerate
+NUMARG=0
+for file in "$@"; do
+if [ "${file##*.}" == wav ] || [ "${file##*.}" == aif ] || [ "${file##*.}" == aiff ] || [ "${file##*.}" == flac ] || [ "${file##*.}" == ogg ] || [ "${file##*.}" == opus ] || [ "${file##*.}" == mp3 ] || [ "${file##*.}" == wv ];
+then
+	((NUMARG=NUMARG+1))
+fi
+done
+
 if [ $# -eq 0 ]
 then
 	echo "Usage: ebu-scan <input files>"
 	exit
+elif [ $NUMARG -eq 0 ]
+then
+	echo "No compatible audio files present"
+	exit
+else
+	:
 fi
 
 # Find real directory name
@@ -35,8 +50,7 @@ echo "File|True Peak|Integrated|Short-term|Momentary|LRA" > "$TEMPDIR/tempanalys
 echo "|(dBTP)|(LUFS)|(LUFS)|(LUFS)|(LU)" >> "$TEMPDIR/tempanalysis"
 touch "$TEMPDIR/skipped.txt"
 
-# Count number of arguments
-NUMARG=0
+# Count number of files
 NUM=1
 SKIPPED=0
 
@@ -46,14 +60,6 @@ then
 	rm "$dirname/loudness_analysis.txt"
 fi
 
-#Enumerate audio files
-for file in "$@"; do
-if [ "${file##*.}" == wav ] || [ "${file##*.}" == aif ] || [ "${file##*.}" == aiff ] || [ "${file##*.}" == flac ] || [ "${file##*.}" == ogg ] || [ "${file##*.}" == opus ] || [ "${file##*.}" == mp3 ] || [ "${file##*.}" == wv ];
-then
-	((NUMARG=NUMARG+1))
-fi
-done
-
 for file in "$@"; do
 # Separate name of file 
 FILENAME=${file##*/}
@@ -61,7 +67,7 @@ FILENAME=${file##*/}
 if [ "${file##*.}" == wav ] || [ "${file##*.}" == aif ] || [ "${file##*.}" == aiff ] || [ "${file##*.}" == flac ] || [ "${file##*.}" == ogg ] || [ "${file##*.}" == opus ] || [ "${file##*.}" == mp3 ] || [ "${file##*.}" == wv ];
 then
 	# Loudness, peak and gain analysis
-	ffmpeg -i $file -af ebur128=peak=true -ar 4410 -f null - > "$TEMPDIR/la.txt" 2>&1
+	ffmpeg -i "$file" -af ebur128=peak=true -ar 4410 -f null - > "$TEMPDIR/la.txt" 2>&1
 	INT=$(awk '/I:   / {print $2}' "$TEMPDIR/la.txt") 
 	PEAK=$(awk '/Peak:/ {print $2}' "$TEMPDIR/la.txt") 
 	SHORT=$(grep -o 'S: .*' "$TEMPDIR/la.txt" | awk '{print $2}' | sort -rn | head -n 1) 
