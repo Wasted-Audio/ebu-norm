@@ -9,9 +9,9 @@ if [[ $REPLY =~ ^[Yy]$ ]]
 then
 	echo "Making scripts executable..."
 	sleep 1
-	chmod +x ebu-norm tp-norm ebu-scan x42-norm ebu-plot
+	chmod +x ebu-norm tp-norm ebu-scan ebu-plot
 	echo "Copying scripts to usr/local/bin..."
 	sleep 1
-	cp ebu-norm tp-norm ebu-scan x42-norm ebu-plot ebu-plot.psl /usr/local/bin
+	cp ebu-norm tp-norm ebu-scan ebu-plot ebu-plot.psl /usr/local/bin
 	echo "Done!!"
 fi
