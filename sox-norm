@@ -1,0 +1,178 @@
+#!/bin/bash
+# Script to batch normalize files to EBU R 128 (-23 LUFS Integrated) or another specified target.
+# Copyright © 2021 Elizabeth Harmon
+      
+# Usage: ebu-norm <option> <input files>.                          
+# Option: 
+#  -t   Specify integrated loudness target, e.g. -t -20         
+
+# Check availability of dependencies
+function checkAvail()
+{
+	which "$1" >/dev/null 2>&1
+	ret=$?
+	if [ $ret -ne 0 ]
+	then
+		echo "tool \"$1\" not found." >&2
+		exit 1
+	fi
+}
+
+for tool in {ebur128,sox,bc}; \
+	do checkAvail "$tool"; done
+
+
+# Select LUFS target based on -t flag or -23 LUFS default
+if [ $# -eq 0 ]
+then
+	echo "Usage: ebu-norm <option> <input files>"
+	echo "	Option:" 
+	echo " 	 -t   Specify integrated loudness target, e.g. -t -20" 
+	exit
+elif [ "$1" = "-t" ] && [ -f "$2" ] 
+then
+	TARGET=-23
+	shift
+	echo "Please enter a value (-12 or lower) if using the -t flag"
+	exit
+elif [ "$1" = "-t" ] && [ "$2" -gt -12 ]
+then
+	echo "Please enter an integrated value -12 or lower"
+	exit	
+elif [ "$1" = "-t" ] 
+then
+	TARGET=$2
+	echo "The target is $TARGET LUFS integrated..."
+	shift ; shift
+	sleep 3
+else
+	TARGET=-23
+	echo "The target is $TARGET LUFS integrated..."
+	sleep 3
+fi
+
+# Create subfolder for normalized files
+path=$(realpath "$1")
+dirname="${path%/*}"
+mkdir -p "$dirname/ebu-norm"
+
+# Create temp dir and audio files
+TEMPDIR=$(mktemp -d)	
+touch "$TEMPDIR/skipped.txt"
+SKIPPED=0
+
+for file in "$@"; do
+# Separate name of file 
+FILENAME=${file##*/}
+FNAME="${FILENAME%.*}"
+EXT="${file##*.}"
+if [ "${file##*.}" == wav ] || [ "${file##*.}" == aif ] || [ "${file##*.}" == aiff ] || [ "${file##*.}" == flac ] || [ "${file##*.}" == ogg ];
+then
+	# Loudness, peak and gain analysis
+	ebur128 --full --lufs "$file" > "$TEMPDIR/la.txt"
+	INT_VALUE=$(awk '/loud/ {print $3}' "$TEMPDIR/la.txt") 
+	PEAK_VALUE=$(awk '/Peak/ {print $3}' "$TEMPDIR/la.txt") 
+	GAIN=$(echo $TARGET "-" $INT_VALUE | bc )
+
+	if [ $(echo $PEAK_VALUE "+" $GAIN "> -1" | bc) -eq 1 ]
+	then 
+
+		# The following SoX compand values are based on numbers in mhartzel's FreeLCS project 
+		# https://github.com/mhartzel/freelcs/blob/master/LoudnessCorrection.py
+		LIMITER_LEVEL=$(echo $INT_VALUE "-" $TARGET "+ -1" | bc )
+		L3=$(echo $LIMITER_LEVEL "+ -3" | bc ) 
+		L2=$(echo $LIMITER_LEVEL "+ -2" | bc ) 
+		L1=$(echo $LIMITER_LEVEL "+ -1" | bc ) 
+		L0=$(echo $LIMITER_LEVEL "+ 0" | bc ) 
+		COMP_1=$(echo "compand 0.005,0.3 1:"$L3","$L3",0,"$L2)
+		COMP_2=$(echo "compand 0.002,0.15 1:"$L2","$L2",0,"$L1)
+		COMP_3=$(echo "compand 0.001,0.075 1:"$L1","$L1",0,"$L0)
+		LIMITER=$(echo "compand 0,0 3:"$L3","$L3",0,"$L0) 
+
+		# SoX limiter chain
+		sox "$file" "$TEMPDIR/audioout.$EXT" $COMP_1 $COMP_2 $COMP3 $LIMITER 2> /dev/null
+
+		# Second analysis pass
+		ebur128 --full --lufs "$TEMPDIR/audioout.$EXT" > "$TEMPDIR/la-2ndpass.txt"
+		INT_VALUE=$(awk '/loud/ {print $3}' "$TEMPDIR/la-2ndpass.txt") 
+		PEAK_VALUE2=$(awk '/Peak/ {print $3}' "$TEMPDIR/la-2ndpass.txt")
+		GAIN2=$(echo $TARGET "-" $INT_VALUE | bc )	
+		PEAKR=$(echo $PEAK_VALUE "-" $PEAK_VALUE2 | bc )
+
+		# Apply gain after limiting
+		sox "$TEMPDIR/audioout.$EXT" "$dirname/ebu-norm/$FNAME-ebu-norm.$EXT" gain $GAIN2
+		echo	
+		echo $file
+		echo "$GAIN dB of gain applied with $PEAKR dB of peak limiting..."
+	else
+		# Apply basic gain without limiting
+		sox "$file" "$dirname/ebu-norm/$FNAME-ebu-norm.$EXT" gain $GAIN
+		echo	
+		echo $file
+		echo "$GAIN dB of gain applied..."
+	fi
+
+elif [ "${file##*.}" == mp3 ] || [ "${file##*.}" == opus ] || [ "${file##*.}" == wv ]
+then
+	# Convert to temp wav file	
+	sox "$file" "$TEMPDIR/$FNAME-$EXT.wav"
+
+	# Loudness, peak and gain analysis
+	ebur128 --full --lufs "$TEMPDIR/$FNAME-$EXT.wav" > "$TEMPDIR/la.txt"
+	INT_VALUE=$(awk '/loud/ {print $3}' "$TEMPDIR/la.txt") 
+	PEAK_VALUE=$(awk '/Peak/ {print $3}' "$TEMPDIR/la.txt") 
+	GAIN=$(echo $TARGET "-" $INT_VALUE | bc )
+
+	if [ $(echo $PEAK_VALUE "+" $GAIN "> -1" | bc) -eq 1 ]
+	then 
+
+		# The following SoX compand values are based on numbers in mhartzel's FreeLCS project 
+		# https://github.com/mhartzel/freelcs/blob/master/LoudnessCorrection.py
+		LIMITER_LEVEL=$(echo $INT_VALUE "-" $TARGET "+ -1" | bc )
+		L3=$(echo $LIMITER_LEVEL "+ -3" | bc ) 
+		L2=$(echo $LIMITER_LEVEL "+ -2" | bc ) 
+		L1=$(echo $LIMITER_LEVEL "+ -1" | bc ) 
+		L0=$(echo $LIMITER_LEVEL "+ 0" | bc ) 
+		COMP_1=$(echo "compand 0.005,0.3 1:"$L3","$L3",0,"$L2)
+		COMP_2=$(echo "compand 0.002,0.15 1:"$L2","$L2",0,"$L1)
+		COMP_3=$(echo "compand 0.001,0.075 1:"$L1","$L1",0,"$L0)
+		LIMITER=$(echo "compand 0,0 3:"$L3","$L3",0,"$L0) 
+
+		# SoX limiter chain
+		sox "$TEMPDIR/$FNAME-$EXT.wav" "$TEMPDIR/audioout.wav" $COMP_1 $COMP_2 $COMP3 $LIMITER 2> /dev/null
+
+		# Second analysis pass
+		ebur128 --full --lufs "$TEMPDIR/audioout.wav" > "$TEMPDIR/la-2ndpass.txt"
+		INT_VALUE=$(awk '/loud/ {print $3}' "$TEMPDIR/la-2ndpass.txt") 
+		PEAK_VALUE2=$(awk '/Peak/ {print $3}' "$TEMPDIR/la-2ndpass.txt")
+		GAIN2=$(echo $TARGET "-" $INT_VALUE | bc )	
+		PEAKR=$(echo $PEAK_VALUE "-" $PEAK_VALUE2 | bc )
+
+		# Apply gain after limiting
+		sox "$TEMPDIR/audioout.wav" "$dirname/ebu-norm/$FNAME-$EXT-ebu-norm.wav" gain $GAIN2
+		echo	
+		echo $file
+		echo "$GAIN dB of gain applied with $PEAKR dB of peak limiting..."
+	else
+		# Apply basic gain without limiting
+		sox "$TEMPDIR/$FNAME-$EXT.wav" "$dirname/ebu-norm/$FNAME-$EXT-ebu-norm.wav" gain $GAIN
+		echo	
+		echo $file
+		echo "$GAIN dB of gain applied..."
+	fi
+
+elif 	[ -f "$file" ]
+then
+	((SKIPPED=SKIPPED+1))
+	echo "$file" >> "$TEMPDIR/skipped.txt"
+else
+	:
+fi
+done
+
+echo
+echo "Skipped items: $SKIPPED"
+cat "$TEMPDIR/skipped.txt"
+rm -r "$TEMPDIR"
+echo
+. ${BASH_SOURCE%/*}/ebu-scan "$dirname"/ebu-norm/*
