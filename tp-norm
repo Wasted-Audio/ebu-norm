@@ -87,14 +87,14 @@ then
 	GAIN=$(echo $TARGET "-" $PEAK_VALUE | bc )
 
 	# Apply gain
-	ffmpeg -v 'fatal' -i "$file" -filter:a "volume=$GAIN dB" "$dirname/tp-norm/$FNAME-tp-norm.$EXT"
+	ffmpeg -y -v 'fatal' -i "$file" -filter:a "volume=$GAIN dB" "$dirname/tp-norm/$FNAME-tp-norm.$EXT"
 	echo	
 	echo $file
 	echo "$GAIN dB of gain applied..."
 elif [ "${file##*.}" == mp3 ] || [ "${file##*.}" == opus ] || [ "${file##*.}" == ogg ] || [ "${file##*.}" == wv ]
 then
 	# Convert to temp wav file	
-	ffmpeg -v 'fatal' -i "$file" "$TEMPDIR/$FNAME-$EXT.wav"
+	ffmpeg -y -v 'fatal' -i "$file" "$TEMPDIR/$FNAME-$EXT.wav"
 
 	# Peak and gain analysis
 	ffmpeg -i "$TEMPDIR/$FNAME-$EXT.wav" -af ebur128=peak=true -ar 4410 -f null - > "$TEMPDIR/la.txt" 2>&1	
@@ -102,7 +102,7 @@ then
 	GAIN=$(echo $TARGET "-" $PEAK_VALUE | bc )
 
 	# Apply gain
-	ffmpeg -v 'fatal' -i "$TEMPDIR/$FNAME-$EXT.wav" -filter:a "volume=$GAIN dB" "$dirname/tp-norm/$FNAME-$EXT-tp-norm.wav"
+	ffmpeg -y -v 'fatal' -i "$TEMPDIR/$FNAME-$EXT.wav" -filter:a "volume=$GAIN dB" "$dirname/tp-norm/$FNAME-$EXT-tp-norm.wav"
 	echo	
 	echo $file
 	echo "$GAIN dB of gain applied..."
