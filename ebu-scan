@@ -87,8 +87,8 @@ then
 	ffmpeg -i "$file" -af ebur128=peak=true -ar 4410 -f null - > "$TEMPDIR/la.txt" 2>&1
 	INT=$(awk '/I:   / {print $2}' "$TEMPDIR/la.txt") 
 	PEAK=$(awk '/Peak:/ {print $2}' "$TEMPDIR/la.txt") 
-	SHORT=$(grep -o 'S:.*' "$TEMPDIR/la.txt" | awk -F '[:I]' '{print $2}' | sort -rg | head -n 1) 
-	MOM=$(grep -o 'M:.*' "$TEMPDIR/la.txt" | awk -F '[:S]' '{print $2}' | sort -rg | head -n 1)
+	SHORT=$(awk -F 'S:|I:' '{print $2}' "$TEMPDIR/la.txt" | sort -rg | head -n 1) 
+	MOM=$(awk -F 'M:|S:' '{print $2}' "$TEMPDIR/la.txt" | sort -rg | head -n 1)
 	LRA=$(awk '/LRA:     / {print $2}' "$TEMPDIR/la.txt")
 	echo "$FILENAME|$PEAK|$INT|$SHORT|$MOM|$LRA" >> "$TEMPDIR/tempanalysis"
 	echo -ne 'Analyzing...'$NUM'/'$NUMARG'\r'  
@@ -109,8 +109,8 @@ if [ -f "$TEMPDIR/album.txt" ]
 then
 	AINT=$(awk '/I:   / {print $2}' "$TEMPDIR/album.txt") 
 	APEAK=$(awk '/Peak:/ {print $2}' "$TEMPDIR/album.txt") 
-	ASHORT=$(grep -o 'S: .*' "$TEMPDIR/album.txt" | awk -F '[:I]' '{print $2}' | sort -rg | head -n 1)
-	AMOM=$(grep -o 'M: .*' "$TEMPDIR/album.txt" | awk -F '[:S]' '{print $2}' | sort -rg | head -n 1)
+	ASHORT=$(awk -F 'S:|I:' '{print $2}' "$TEMPDIR/album.txt" | sort -rg | head -n 1) 
+	AMOM=$(awk -F 'M:|S:' '{print $2}' "$TEMPDIR/album.txt" | sort -rg | head -n 1)
 	ALRA=$(awk '/LRA:     / {print $2}' "$TEMPDIR/album.txt")
 	echo >> "$TEMPDIR/tempanalysis"
 	echo "Album|$APEAK|$AINT|$ASHORT|$AMOM|$ALRA" >> "$TEMPDIR/tempanalysis"

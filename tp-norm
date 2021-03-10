@@ -37,6 +37,10 @@ then
 	echo "	Option:"
 	echo "	 -t   Specify true peak target, e.g. -t -2"
 	exit
+elif [ "$1" = "-t" ] && [ $# -eq 1 ]
+then
+	echo "Please add a true peak target and some audio files"
+	exit
 elif [ $NUMARG -eq 0 ]
 then
 	echo "No compatible audio files present"
