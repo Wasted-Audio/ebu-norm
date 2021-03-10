@@ -1,7 +1,7 @@
 # ebu-norm | tp-norm
 Scripts to batch normalize files to integrated or true peak targets
 
-Prerequisites: `ffmpeg`, `sound-gambit`
+Prerequisites: `ffmpeg`, `sound-gambit` (https://github.com/x42/sound-gambit)
 
 Fully supported file inputs: wav, aiff (or aif), flac.  
 Mp3, opus, ogg and wavpack are first converted to wav before normalizing.
