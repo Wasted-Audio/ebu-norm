@@ -43,7 +43,7 @@ then
 	exit
 elif [ $NUMARG -eq 0 ]
 then
-	echo "No compatible audio files present"
+	echo "No compatible audio files present. tp-norm accepts wav, aiff, flac, mp3, ogg, opus and wavpack."
 	exit
 
 elif [ "$1" = "-t" ] && [ -f "$2" ] 
