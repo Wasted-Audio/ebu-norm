@@ -13,5 +13,23 @@ then
 	echo "Copying scripts to usr/local/bin..."
 	sleep 1
 	cp ebu-norm tp-norm ebu-scan ebu-plot ebu-plot.psl /usr/local/bin
+
+	# Check for sound-gambit and offer to install if not available
+	which sound-gambit >/dev/null 2>&1
+	ret=$?
+	if [ $ret -ne 0 ]
+	then
+		echo "Sound Gambit is required by ebu-norm but was not found."
+		sleep 3
+		echo "Downloading latest sound-gambit binary..."
+		sudo -u	$SUDO_USER wget https://github.com/x42/sound-gambit/releases/latest/download/sound-gambit.linux.x86-64 >/dev/null 2>&1
+		echo "Installing sound-gambit to /usr/bin..."
+		sleep 1
+		chmod +x sound-gambit.linux.x86-64
+		mv sound-gambit.linux.x86-64 /usr/bin/sound-gambit
+	else
+		:
+	fi
 	echo "Done!!"
 fi
+
