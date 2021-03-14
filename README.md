@@ -94,6 +94,10 @@ ebu-scan AudioFolder/Sympathique.flac
 ```
 ![11 - Sympathique-flac-ebu-plot](https://user-images.githubusercontent.com/79659262/110396624-2d794680-8025-11eb-8de7-64bdc5b154fe.png)
 
+# Installation of scripts
 
+`sudo ./install.sh`
+
+Copies all scripts to `usr/local/bin` and latest sound-gambit binary to `/usr/bin`
 
 
