@@ -98,6 +98,5 @@ ebu-scan AudioFolder/Sympathique.flac
 
 `sudo ./install.sh`
 
-Copies all scripts to `usr/local/bin` and latest sound-gambit binary to `/usr/bin`
-
+Copies all scripts and latest sound-gambit binary (if needed) to `usr/local/bin`
 
