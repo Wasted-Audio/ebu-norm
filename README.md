@@ -1,4 +1,7 @@
-# ebu-norm | tp-norm
+# ebu-norm | tp-norm | ebu-scan | ebu-plot
+
+## ebu-norm & tp-norm
+
 Scripts to batch normalize files to integrated or true peak targets
 
 Prerequisites: `ffmpeg`, `sound-gambit` (https://github.com/x42/sound-gambit)
@@ -49,7 +52,7 @@ tp-norm -t -2 AudioFolder/*.flac
 ```
 will create a `tp-norm` sub-folder and -2 dBTP FLAC files. 
 
-# ebu-scan
+## ebu-scan
 
 ### Usage: 
 ```shell
@@ -78,7 +81,7 @@ File                     True Peak  Integrated  Short-term  Momentary  LRA
 
 ```
 
-# ebu-plot (beta)
+## ebu-plot (beta)
 Wrapper script to batch produce PNG loudness graphs using adapted PowerShell script.  
 A huge thanks to user L5730 from https://www.audiosciencereview.com/ for the original PowerShell script.  
 ====_Will move to native bash script for v2.0_====
