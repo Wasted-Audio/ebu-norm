@@ -22,11 +22,11 @@ then
 		echo "Sound Gambit is required by ebu-norm but was not found."
 		sleep 3
 		echo "Downloading latest sound-gambit binary..."
-		sudo -u	$SUDO_USER wget https://github.com/x42/sound-gambit/releases/latest/download/sound-gambit.linux.x86-64 >/dev/null 2>&1
+		sudo -u	$SUDO_USER wget https://github.com/x42/sound-gambit/releases/latest/download/sound-gambit.linux >/dev/null 2>&1
 		echo "Installing sound-gambit to /usr/local/bin..."
 		sleep 1
-		chmod +x sound-gambit.linux.x86-64
-		mv sound-gambit.linux.x86-64 /usr/local/bin/sound-gambit
+		chmod +x sound-gambit.linux
+		mv sound-gambit.linux /usr/local/bin/sound-gambit
 	else
 		:
 	fi
