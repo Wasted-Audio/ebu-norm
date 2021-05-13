@@ -1,6 +1,6 @@
 # ebu-norm | tp-norm | ebu-scan | ebu-plot
 
-## Installation of scripts
+#### Installation of scripts
 
 `sudo ./install.sh`
 
