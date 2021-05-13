@@ -90,7 +90,7 @@ File                     True Peak  Integrated  Short-term  Momentary  LRA
 ## ebu-plot (beta)
 Wrapper script to batch produce PNG loudness graphs using adapted PowerShell script.  
 A huge thanks to user L5730 from https://www.audiosciencereview.com/ for the original PowerShell script.  
-====_Will move to native bash script for v2.0_====
+====_Will move to native bash script for v3.0_====
 
 Prerequisites: `pwsh` (PowerShell), `ffmpeg`, `gnuplot` 
 
