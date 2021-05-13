@@ -1,5 +1,11 @@
 # ebu-norm | tp-norm | ebu-scan | ebu-plot
 
+## Installation of scripts
+
+`sudo ./install.sh`
+
+Copies all scripts and latest sound-gambit binary (if needed) to `usr/local/bin`. 
+
 ## ebu-norm & tp-norm
 
 Scripts to batch normalize files to integrated or true peak targets
@@ -96,10 +102,4 @@ Fully supported file inputs: wav, aiff (or aif), flac, ogg, opus, mp3 and wavpac
 ebu-scan AudioFolder/Sympathique.flac
 ```
 ![11 - Sympathique-flac-ebu-plot](https://user-images.githubusercontent.com/79659262/110396624-2d794680-8025-11eb-8de7-64bdc5b154fe.png)
-
-# Installation of scripts
-
-`sudo ./install.sh`
-
-Copies all scripts and latest sound-gambit binary (if needed) to `usr/local/bin`
 
